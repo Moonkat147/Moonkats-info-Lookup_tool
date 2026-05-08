@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Moonk@ts QB Expert Packet Lookup</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg:       #080c10;
+  --surface:  #0f1520;
+  --surface2: #16202e;
+  --surface3: #1d2a3a;
+  --border:   #1e2d40;
+  --border2:  #243549;
+  --text:     #d8e8f5;
+  --muted:    #5a7a98;
+  --dim:      #3a5570;
+  --accent:   #00c8ff;
+  --accent2:  #7b5ea7;
+  --green:    #00e57a;
+  --amber:    #ffb830;
+  --red:      #ff4d6d;
+  --font:     'IBM Plex Sans', sans-serif;
+  --mono:     'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.55}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── HEADER ── */
+#hdr{
+  position:sticky;top:0;z-index:30;
+  background:rgba(8,12,16,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:10px 18px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+}
+.brand{font-weight:700;font-size:15px;letter-spacing:.5px;white-space:nowrap;font-family:var(--mono)}
+.brand em{color:var(--accent);font-style:normal}
+.brand small{font-size:10px;color:var(--muted);font-weight:400;margin-left:8px}
+
+#q{
+  flex:1;min-width:220px;
+  padding:9px 14px 9px 36px;
+  border-radius:8px;border:1px solid var(--border2);
+  background:var(--surface2);color:var(--text);font:14px var(--font);
+  outline:none;transition:border-color .15s,box-shadow .15s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235a7a98' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:12px center;
+}
+#q:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,200,255,.12)}
+#q::placeholder{color:var(--dim)}
+
+.btn{
+  padding:7px 12px;border-radius:7px;border:1px solid var(--border2);
+  background:var(--surface2);color:var(--text);font:13px var(--font);
+  cursor:pointer;display:inline-flex;gap:5px;align-items:center;
+  white-space:nowrap;transition:border-color .12s,background .12s;
+}
+.btn:hover{border-color:var(--accent);background:var(--surface3)}
+.btn.on{background:var(--accent);color:#001820;border-color:var(--accent);font-weight:600}
+.btn.ghost{background:transparent;border-color:transparent}
+.btn.ghost:hover{background:var(--surface2);border-color:var(--border2)}
+
+#prog-wrap{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);white-space:nowrap}
+#prog-bar-outer{width:80px;height:4px;background:var(--surface3);border-radius:2px}
+#prog-bar{height:4px;background:var(--green);border-radius:2px;transition:width .3s}
+
+/* ── TABS ── */
+#tabs{
+  display:flex;gap:2px;padding:0 14px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+  position:sticky;top:52px;z-index:29;
+  overflow-x:auto;
+}
+#tabs::-webkit-scrollbar{height:3px}
+.tab{
+  padding:9px 12px;cursor:pointer;color:var(--muted);font-size:13px;font-weight:500;
+  border-bottom:2px solid transparent;white-space:nowrap;transition:color .12s;
+  user-select:none;
+}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ── MAIN ── */
+#main{padding:20px 18px 90px;max-width:1240px;margin:0 auto}
+
+/* ── EDIT BANNER ── */
+#edit-banner{
+  display:none;padding:10px 14px;margin-bottom:14px;border-radius:9px;
+  background:rgba(123,94,167,.12);border:1px solid var(--accent2);
+  font-size:13px;color:var(--text);
+}
+#edit-banner.on{display:block}
+
+/* ── TRANSFER CODES PANEL ── */
+#tc-panel{
+  background:var(--surface);border:1px solid var(--border2);border-radius:12px;
+  padding:14px;margin-bottom:20px;
+}
+#tc-panel h2{font-size:14px;font-family:var(--mono);color:var(--accent);margin-bottom:12px;letter-spacing:.5px}
+.tc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.tc-section-title{grid-column:1/-1;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:8px 0 4px;border-top:1px solid var(--border);margin-top:4px}
+.tc-section-title:first-child{border-top:none;margin-top:0;padding-top:0}
+.tc-btn{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 10px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface2);cursor:pointer;transition:border-color .12s,background .12s;
+  text-align:left;
+}
+.tc-btn:hover{border-color:var(--accent);background:var(--surface3)}
+.tc-btn .tc-desc{font-size:12px;color:var(--muted);flex:1}
+.tc-btn .tc-code{font:600 12px var(--mono);color:var(--accent);white-space:nowrap}
+.tc-btn .tc-icon{color:var(--dim);font-size:11px;flex-shrink:0}
+.tc-btn:active{transform:scale(.99)}
+
+/* ── HOME NAV GRID ── */
+.nav-intro{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.7}
+.nav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:24px}
+.nav-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:11px;
+  padding:14px 16px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s;
+  display:flex;flex-direction:column;gap:5px;
+}
+.nav-card:hover{border-color:var(--accent);background:var(--surface2);transform:translateY(-1px)}
+.nav-card .nc-label{font-weight:600;font-size:14px;color:var(--text)}
+.nav-card .nc-desc{font-size:12px;color:var(--muted)}
+.nav-card .nc-arrow{color:var(--accent);font-size:12px;margin-top:auto;padding-top:6px}
+.callout-box{
+  background:var(--surface);border:1px solid var(--border2);border-radius:11px;
+  padding:14px 16px;margin-top:4px;
+}
+.callout-box h3{font-size:13px;color:var(--amber);margin-bottom:8px;font-family:var(--mono)}
+.callout-box li{color:var(--muted);font-size:13px;margin-left:16px;margin-bottom:3px}
+
+/* ── CATALOG (multi-column) ── */
+.catalog-cols{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.catalog-col{flex:1;min-width:240px}
+.cat-section-title{
+  font-size:13px;font-weight:700;color:var(--accent2);
+  padding:0 0 8px;margin-bottom:8px;border-bottom:1px solid var(--border);
+  font-family:var(--mono);letter-spacing:.3px;
+}
+.cat-item{
+  padding:7px 10px;border-radius:7px;border:1px solid transparent;
+  margin-bottom:3px;transition:background .1s,border-color .1s;
+}
+.cat-item:hover{background:var(--surface2);border-color:var(--border)}
+.cat-item a{font-size:13px;color:var(--text);display:block}
+.cat-item a:hover{color:var(--accent);text-decoration:none}
+.cat-item .cat-item-ext{font-size:10px;color:var(--dim);margin-left:4px}
+.cat-item-script{margin-top:5px}
+
+/* ── CARD GRID (label/desc/link) ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:11px;
+  padding:13px 15px;display:flex;flex-direction:column;gap:6px;
+  transition:border-color .12s;
+}
+.card:hover{border-color:var(--border2)}
+.card.scripted{border-left:3px solid var(--green)}
+.card .card-label{font-weight:600;font-size:14px;line-height:1.35}
+.card .card-desc{font-size:13px;color:var(--muted)}
+.card .card-footer{margin-top:auto;padding-top:8px;display:flex;gap:7px;flex-wrap:wrap}
+
+/* ── PROCEDURE ── */
+.proc-intro{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;
+  padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+.proc-intro span{font-size:12px;color:var(--muted);align-self:center}
+.proc-section{margin-bottom:22px}
+.proc-section h2{font-size:15px;color:var(--accent2);margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.step{display:flex;gap:12px;padding:9px 11px;border-radius:8px;margin-bottom:3px;
+  transition:background .1s}
+.step:hover{background:var(--surface2)}
+.step.sub{margin-left:28px;opacity:.85}
+.step .step-num{color:var(--accent);font:600 13px var(--mono);min-width:22px;flex-shrink:0}
+.step.sub .step-num{color:var(--accent2)}
+.step .step-body{flex:1}
+
+/* ── LEAD PASS ── */
+.lp-section{margin-bottom:20px}
+.lp-section h2{font-size:14px;font-weight:700;color:var(--accent2);
+  padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.lp-table{width:100%;border-collapse:collapse}
+.lp-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--border)}
+.lp-table td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
+.lp-table tr:hover td{background:var(--surface2)}
+.lp-table .q-col{color:var(--text)}
+.lp-table .b-col{color:var(--muted)}
+.lp-codes{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:10px}
+
+/* ── MIXED TEXT ── */
+.mixed-section{margin-bottom:20px}
+.mixed-section h2{font-size:14px;font-weight:700;color:var(--accent2);
+  padding-bottom:7px;margin-bottom:10px;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.mixed-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:7px 10px;border-radius:7px;margin-bottom:3px;
+  transition:background .1s;
+}
+.mixed-item:hover{background:var(--surface2)}
+.mixed-item .mi-text{flex:1;font-size:13px}
+.mixed-item .mi-text.bold{font-weight:600;color:var(--text)}
+.mixed-item .mi-text.normal{color:var(--muted)}
+
+/* ── SEARCH RESULTS ── */
+.results-list{display:grid;grid-template-columns:1fr;gap:9px}
+.result-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;flex-direction:column;gap:5px;
+}
+.result-card .rc-meta{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim)}
+.result-card .rc-label{font-weight:600;font-size:14px}
+.result-card .rc-desc{font-size:13px;color:var(--muted)}
+.result-card .rc-footer{padding-top:7px;display:flex;gap:7px;flex-wrap:wrap}
+
+/* ── SHARED ── */
+.script-blurb{
+  background:rgba(0,229,122,.07);border:1px solid rgba(0,229,122,.2);
+  border-radius:7px;padding:7px 10px;font-size:13px;color:#a8f0c8;
+  font-style:italic;margin-top:4px;
+}
+.script-blurb::before{content:"🎤 "}
+textarea.editable,input.editable{
+  width:100%;background:var(--surface3);border:1px solid var(--border2);
+  border-radius:6px;color:var(--text);padding:6px 9px;font:13px var(--font);
+  resize:vertical;outline:none;margin-top:5px;
+}
+textarea.editable:focus,input.editable:focus{border-color:var(--accent)}
+.link-btn{
+  padding:5px 9px;border-radius:6px;border:1px solid var(--border2);
+  background:var(--surface2);color:var(--accent);font:12px var(--font);
+  cursor:pointer;text-decoration:none;display:inline-flex;gap:4px;align-items:center;
+  transition:border-color .12s,background .12s;
+}
+.link-btn:hover{border-color:var(--accent);background:var(--surface3);text-decoration:none}
+.copy-btn{
+  padding:4px 8px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font:11px var(--mono);
+  cursor:pointer;transition:color .12s,border-color .12s;
+}
+.copy-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+mark{background:rgba(0,200,255,.22);color:var(--text);border-radius:2px;padding:0 1px}
+.empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:15px}
+.page-title{font-size:20px;font-weight:700;margin-bottom:16px;font-family:var(--mono);
+  color:var(--accent);letter-spacing:.3px}
+
+kbd{background:var(--surface3);border:1px solid var(--border2);border-radius:4px;
+  padding:1px 6px;font:11px var(--mono)}
+
+/* ── FOOTER ── */
+#footer{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(8,12,16,.97);border-top:1px solid var(--border);
+  padding:6px 18px;display:flex;gap:16px;align-items:center;
+  font-size:11px;color:var(--muted);
+}
+#footer .fstat{margin-left:auto;color:var(--dim)}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:48px;left:50%;transform:translateX(-50%);
+  background:var(--green);color:#001a08;padding:7px 16px;border-radius:8px;
+  font-weight:600;font-size:13px;pointer-events:none;
+  opacity:0;transition:opacity .18s;z-index:99;
+}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="brand"><em>Moonk@ts</em> QB Expert Packet<small>lookup</small></div>
+  <input id="q" type="search" placeholder="Search everything…  (press / to focus)" autocomplete="off">
+  <button class="btn" id="edit-btn">✎ Edit mode</button>
+  <button class="btn ghost" id="export-btn" title="Export your script edits">⬇ Export</button>
+  <label class="btn ghost" title="Import saved edits">⬆ Import<input type="file" id="import-file" accept=".json" style="display:none"></label>
+  <div id="prog-wrap">
+    <div id="prog-bar-outer"><div id="prog-bar" style="width:0%"></div></div>
+    <span id="prog-txt">0 scripted</span>
+  </div>
+</div>
+
+<div id="tabs"></div>
+
+<div id="main">
+  <div id="edit-banner" class="edit-banner">
+    ✎ <strong>Edit mode on.</strong> Add your call language to any entry — auto-saves to your browser.
+    Use Export/Import to back up or restore.
+  </div>
+  <div id="content"></div>
+</div>
+
+<div id="footer">
+  <span><kbd>/</kbd> search</span>
+  <span><kbd>Esc</kbd> clear</span>
+  <span><kbd>Alt+Tab</kbd> cycle tabs</span>
+  <span class="fstat" id="fstat"></span>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const DATA = {"Call Flow":{"pattern":"call_flow","title":"Call Flow","phases":[{"phase":"Opening","anchors":[{"tag":"greeting","type":"open","text":"Hello, thank you for calling QuickBooks \u2014 my name is ___________. Who do I have the luxury of speaking with today, and how is your day going so far?"},{"tag":"chain-of-thought callback","type":"open","text":"Oh that's awesome to hear \u2014 well let's make sure we keep that same chain of thought!"}]},{"phase":"Discovery","anchors":[{"tag":"verify","type":"verify","text":"What seems to be the issue you're having today? And can you verify your phone number and company ID with me real quick?"},{"tag":"calibrate \u2014 use every time","type":"calibrate","text":"OK so it sounds like you're having some issues with [topic] \u2014 no problem at all, I would love to help. Can you tell me how long you've been a QuickBooks Online user, and is this something you're pretty familiar with or would you like me to walk you through step by step?"}]},{"phase":"Solution","anchors":[{"tag":"if they know their stuff","type":"tip","text":"Well then I won't really need to sit here and tell you much \u2014 I'll guide you through it. We also have the option to screen share if that would make things a little easier."},{"tag":"solve","type":"solve","text":"\u2192 Handle the issue using the lookup tool. Add your topic-specific script blurbs as you build them out."}]},{"phase":"Wrap","anchors":[{"tag":"soft close","type":"wrap","text":"Well that was a pretty easy call \u2014 glad we were able to get that sorted out! Was there anything else I might be able to help you with today?"},{"tag":"recap","type":"wrap","text":"Just to recap \u2014 you called in about [topic], we walked through [what you did], and everything is resolved. Is that correct? Perfect, just give me one moment while I update your notes for future agents."},{"tag":"filler while updating notes","type":"wrap","text":"So how's the weather where you're at? \u2026 Hopefully it turns around for you \u2014 everything's great on our end."},{"tag":"sign-off","type":"wrap","text":"There will be a brief survey sent to you at the end of this call \u2014 we'd love to hear your feedback. Thank you for choosing QuickBooks and I hope you have an awesome rest of your day!"}]},{"phase":"Never Use \u2014 QA Flags","anchors":[{"tag":"banned words","type":"flag","text":"Sir  \u00b7  Um"}]}]},"HOME":{"pattern":"nav_grid","title":"QBO Expert Packet","intro_lines":["These links below will bring you to the corresponding pages.","On each of these pages you will see a \"HOME\" button to click to get back here!"],"cards":[{"label":"Tools","description":"Tools used daily as a QBO expert with their uses.","target_sheet":"Tools"},{"label":"Accountant Group","description":"Accountant Group Information","target_sheet":"Accountant Group"},{"label":"Transfer Codes","description":"Codes you use in your phone tool to transfer to another department.","target_sheet":"Transfer Codes"},{"label":"Advanced","description":"Links for Advanced users","target_sheet":"Advanced"},{"label":"Payroll Links","description":"Links for articles for Payroll Experts.","target_sheet":"Payroll Links"},{"label":"Elite and Premium Payroll and Time","description":"The differences between Elite and Premium as well as links.","target_sheet":null},{"label":"Lead Pass","description":"Questions to trigger leads and benefits of the products.","target_sheet":"Lead Pass "},{"label":"ProAdvisor and Accountant","description":"Links for assisting ProAdvisor and Accountant users.","target_sheet":null},{"label":"Migration Checklist","description":"The checklist to go over for customers going from Desktop to Online.","target_sheet":"Migration Checklist"},{"label":"Translator","description":"Directions should a customer need a translator.","target_sheet":"Translator"},{"label":"How Tos","description":"How To articles for QBO","target_sheet":"How Tos"},{"label":"Banking Issues","description":"Bank Issue articles","target_sheet":"Banking Issues"},{"label":"Log In Issues","description":"Log in Issue articles","target_sheet":"Log In Issues"},{"label":"Billing Issues","description":"Billing Tab Breakdown","target_sheet":"Billing Issues"}],"callout":{"title":"NLH Case Note Template","lines":["1. Customer name","2. Issue summary (one line description of the issues)","3. Troubleshooting completed (List steps completed)","4. Reason for escalation (State why escalation is required)","5. What is the issue?","NOTE: IF intuit assist captures notes there is no need for you to document case notes."]}},"Transfer Codes":{"pattern":"transfer_codes","title":"Transfer Codes","sections":[{"header":"Lead Transfer Codes (Sales)","codes":[{"descriptor":"Advanced Leads","code":"SBC Phn Advanced Sales"},{"descriptor":"QBO - Core","code":"US GBSG OL Quickbooks Phn (never transfer back into the queue)"},{"descriptor":"Payroll Leads","code":"SBC Phn Payroll Sales"},{"descriptor":"Advanced","code":"QB Advanced OL"},{"descriptor":"Payments Leads","code":"SBC Phn Payments Sales"},{"descriptor":"Self Employed/Solopreneur","code":"QBSE Phn Support"},{"descriptor":"Live Leads","code":"SBC Phn QBLive Sales"},{"descriptor":"QB Time","code":"QBTime Phn Support"},{"descriptor":"QBTime","code":"QBTime Sales"},{"descriptor":"Quickbooks Online","code":"SBC Phn QBO Sales"},{"descriptor":"QBDT Pro/Premier (Windows)","code":"QBDT Phn ProPrem"},{"descriptor":"Enterprise","code":"SBC Phn Enterprise Sales"},{"descriptor":"Migration","code":"US GBSG OL Desktop Migration PHN"},{"descriptor":"QBDT for Mac","code":"QBDT Phn ProPrem Mac"},{"descriptor":"QBO Saves","code":"US GBSG OL Quickbooks Saves Phn"},{"descriptor":"Payroll Core","code":"QBO Phn Payroll Core"},{"descriptor":"QBO Advanced","code":"US GBSG OL Quickbooks Advanced Saves Phn"},{"descriptor":"Payroll Premium","code":"QBO Phn Prem Payroll"},{"descriptor":"Desktop Pro or Premier","code":"QBDT Phn ProPrem Saves EN"},{"descriptor":"Payroll Elite","code":"QB PYRL OL Elite"},{"descriptor":"Enterprise","code":"QB Enterprise DT"},{"descriptor":"Onboarding Payroll","code":"QBO Phn Payroll Full Service Setup"},{"descriptor":"Payroll Collections","code":"QB Phn Payroll Collections"},{"descriptor":"Desktop Payroll (DIY)","code":"QBDT Phn Payroll DIY (Do it yourself payroll)"},{"descriptor":"Desktop Accountant Support GOLD","code":"QBDT Phn Acct Gold"},{"descriptor":"Desktop Payroll (AP)","code":"QBDT Phn Prem Payroll Assisted (Assisted Payroll)"},{"descriptor":"Desktop Accountant Support Platinum","code":"QBDT Phn Prem Acct Elite"},{"descriptor":"Desktop Accountant Support Silver","code":"QBDT Phn Acct Silver"},{"descriptor":"Payments Core (Online Merchant Services)","code":"QB Payment OL"},{"descriptor":"Online Accountant Support Elite/Platinum","code":"QBO Phn Prem Acct Elite"},{"descriptor":"Green Dot","code":"833-603-0416"},{"descriptor":"Online Accountant Support Silver","code":"QBO Phn Acct Silver"},{"descriptor":"Merchant Services Risk (QBO/DT):","code":"QB Risk Ops Payments Only"},{"descriptor":"Desktop Payments","code":"QB Payments DT"},{"descriptor":"GBSG Online Tier 1 Experts","code":"US GBSG OL Next Level Help Phn"},{"descriptor":"Mid-Market Tier 1 Experts","code":"US GBSG MM Next Level Help Phn"},{"descriptor":"Accountant Group Core Online Tier 1 Experts","code":"US GBSG AG CORE Next Level Help Phn"},{"descriptor":"Accountant Group Core Online Tier 1 Experts","code":"US GBSG AG PREMIUM Next Level Help Phn"}]}]},"Quality - SQS":{"pattern":"mixed_text","title":"Quality","sections":[{"header":"Quality","items":[{"text":"ZTP Issue Form","url":"https://forms.office.com/pages/responsepage.aspx?id=f3dsI--AqUi6LEm99t03Ja0wMXn6YVBArvKL8CUVIpNUMVE4WjZESFM5RklGS1o2UDRIV1czTlhRMi4u&route=shorturl","bold":true},{"text":"Manuel SQS Score - calculated by QA Scoring select calls","url":"","bold":false},{"text":"Fiil this out anytime you cannot call a customer back due to a tech issue or no callback number.","url":"","bold":false},{"text":"Tech SQS Cheat Sheet","url":"https://intuit.enterprise.slack.com/files/U06PYJDKV6J/F0AH9TXMLAD/tech_sqs_cheat_sheet.png","bold":false},{"text":"Rubric Scoring Guide","url":"https://workingsol-my.sharepoint.com/:x:/p/ehayes/IQBmbdy1VU2lSoyuALMsrFHwASqMt7VBI1XjaCe20mdeBiA?e=OqOJqr","bold":false},{"text":"To find your scores go to One Login, then Forms, then Reviews","url":"","bold":false},{"text":"Issue Understanding Guide","url":"https://workingsol-my.sharepoint.com/:b:/p/mschmid/IQCyPaw2QJDwT6fDIk7fDxUSAVEBph28FYkX3R-k3MqFbHw?e=rmv7fd","bold":false},{"text":"Tech SQS Score -       calculated by AI scoring ALL of your calls","url":"","bold":false},{"text":"10 Guidelines AI scores on can be found in:","url":"","bold":false},{"text":"Product Expert Call Flow Guide- Tech SQS","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L2hnOQInG_US_en_US&hideLeftPanel=true","bold":false}]},{"header":"Guidelines- Goal is 85","items":[{"text":"The behaviors are also weighted from low to very high. Those with \u201cvery high\u201d listed beside them mean they contribute more to your score and those with \u201clow\u201d listed beside them mean they contribute less.","url":"","bold":false},{"text":"Here are the behaviors that are recommended that you want an 85 or higher:","url":"","bold":false},{"text":"1. Greeting: (low) Start the call with a warm, friendly tone and mention your customer\u2019s name.","url":"","bold":false},{"text":"2. Branded Introduction: (low) Introduce yourself by name, share your role, and mention the branded product you support.","url":"","bold":false},{"text":"3. Customer Name: (low) Use your customer\u2019s name at least twice during the call (not counting the greeting). Avoid impersonal terms like ma\u2019am, sir, or miss.","url":"","bold":false},{"text":"4. Empathy \u2013 Reassurance: (moderate) Show you\u2019re committed to resolving their problem. Reassure your customer that you're here to help.","url":"","bold":false},{"text":"5. Ownership \u2013 Problem Solving: (very high) Take responsibility for solving your customer\u2019s issue or getting them to the right team.","url":"","bold":false},{"text":"6. Communication \u2013 Expectation Setting: (very high) Clearly explain the steps you\u2019ll take, set realistic timeframes, and help your customer understand what to expect.","url":"","bold":false},{"text":"7. Issue Understanding \u2013 Recap: (high) Summarize your customer\u2019s core issue and your solution before ending the call.","url":"","bold":false},{"text":"Here are the behaviors to avoid where you want a 0 score (the lower the better):","url":"","bold":false},{"text":"1. Abrupt Disconnect: (moderate) Avoid hanging up without closure, dropping the call mid-conversation, or placing your customer on hold and not returning.","url":"","bold":false},{"text":"2. Contact Avoidance: (moderate) Stay actively engaged. Avoid staying silent, saying only a few words, or showing disinterest in helping your customer.","url":"","bold":false},{"text":"3. Unfulfilled Escalation: (high) Don\u2019t ignore your customer\u2019s request to escalate. Try to de-escalate when possible, but honor the request if needed.","url":"","bold":false},{"text":"ZTPs","url":"","bold":false},{"text":"KB Article - Understand the Zero Tolerance Policy","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L6MKp8FQ8_US_en_US&hideLeftPanel=true","bold":false},{"text":"Level 0 ZTP Cheat Sheet","url":"https://intuit.enterprise.slack.com/files/U06PYJDKV6J/F0AFDCDJ1V3/ztp_cheat_sheet__2_.png","bold":false},{"text":"Level 0 ZTPs","url":"","bold":false},{"text":"Level 1 ZTPs","url":"","bold":false},{"text":"Level 2 ZTPs","url":"","bold":false},{"text":"Abrupt Disconnects","url":"","bold":false},{"text":"Data leak","url":"","bold":false},{"text":"Staying on call post transfer/transferring without troubleshooting","url":"","bold":false},{"text":"Contact Avoidances","url":"","bold":false},{"text":"Callback abandoned","url":"","bold":false},{"text":"Survey Influence","url":"","bold":false},{"text":"Secure Pause","url":"","bold":false},{"text":"Unprofessional conduct","url":"","bold":false},{"text":"Delay opening/closing of call","url":"","bold":false},{"text":"Profanity","url":"","bold":false},{"text":"Cold Transfers","url":"","bold":false},{"text":"Sharing PII","url":"","bold":false},{"text":"Unfulfilled escalations","url":"","bold":false},{"text":"CCP Issues Cheat Sheet","url":"","bold":false},{"text":"KB Articles","url":"","bold":false},{"text":"Secure Pause","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L8sNZZtSC_US_en_US","bold":false},{"text":"Understand the PII Policy","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L8sNZZtSC_US_en_US","bold":false},{"text":"Prevent Amazon Connect CCP Issues and system recovery protocol","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L0CYSMYG2_US_en_US&hideLeftPanel=true","bold":false},{"text":"Handle Customer Calls - Tech SQS","url":"https://shcs-playground.app.intuit.com/web-renderer?hideLeftPanel=true&id=L3Sin09vT_US_en_US","bold":false},{"text":"Level 1 and 2 ZTP Cheat Sheet","url":"https://intuit.enterprise.slack.com/files/U06PYJDKV6J/F0AFGQYCMR8/ztp_level_1s_and_2s_cheat_sheet.png","bold":false}]}]},"Trackers & Workflows":{"pattern":"multi_column_catalog","title":"Tracker / Workflow","sections":[{"header":"Purpose","col":2,"row":1,"items":[{"label":"Centralized tracker for customer feedback cases tied to ATTN-15128. Used for visibility, trend analysis, and escalation support.","url":"","description":""},{"label":"Dedicated workflow for submitting opportunities and feedback related to tools, policy, product, or process improvements.","url":"","description":""},{"label":"This quick survey will help us gather insights on:\nCommon payroll drivers showing up in your interactions\nCustomer issues or recurring pain points\nOpportunities to improve our systems, workflows, and KB articles\nWays we can enhance the overall customer experience\nYour experience gives us visibility into what\u2019s working, where friction exists, and where we can improve. The feedback you provide directly shapes future updates, resource optimizations, and cross\u2011team initiatives.","url":"","description":""},{"label":"This quick survey will help us gather insights on:\nCommon payroll drivers showing up in your interactions\nCustomer issues or recurring pain points\nOpportunities to improve our systems, workflows, and KB articles\nWays we can enhance the overall customer experience\nYour experience gives us visibility into what\u2019s working, where friction exists, and where we can improve. The feedback you provide directly shapes future updates, resource optimizations, and cross\u2011team initiatives.","url":"","description":""},{"label":"This quick survey will help us gather insights on:\nCommon payroll drivers showing up in your interactions\nCustomer issues or recurring pain points\nOpportunities to improve our systems, workflows, and KB articles\nWays we can enhance the overall customer experience\nYour experience gives us visibility into what\u2019s working, where friction exists, and where we can improve. The feedback you provide directly shapes future updates, resource optimizations, and cross\u2011team initiatives.","url":"","description":""},{"label":"This quick survey will help us gather insights on:\nCommon payroll drivers showing up in your interactions\nCustomer issues or recurring pain points\nOpportunities to improve our systems, workflows, and KB articles\nWays we can enhance the overall customer experience\nYour experience gives us visibility into what\u2019s working, where friction exists, and where we can improve. The feedback you provide directly shapes future updates, resource optimizations, and cross\u2011team initiatives.","url":"","description":""},{"label":"This quick survey will help us gather insights on:\nCommon payroll drivers showing up in your interactions\nCustomer issues or recurring pain points\nOpportunities to improve our systems, workflows, and KB articles\nWays we can enhance the overall customer experience\nYour experience gives us visibility into what\u2019s working, where friction exists, and where we can improve. The feedback you provide directly shapes future updates, resource optimizations, and cross\u2011team initiatives.","url":"","description":""}]},{"header":"Link","col":3,"row":1,"items":[{"label":"https://workingsol-my.sharepoint.com/:x:/p/akramer/IQDS2bmIaXZgRZZViNgFgza_ARUtb5isqqw_ikQSnsoq5X0?e=652T1b8","url":"https://workingsol-my.sharepoint.com/:x:/p/akramer/IQDS2bmIaXZgRZZViNgFgza_ARUtb5isqqw_ikQSnsoq5X0?e=652T1b8","description":""},{"label":"https://slack.com/shortcuts/Ft0AULB9BVB4/266558f50f6b8e818546312a5ae782dd","url":"https://slack.com/shortcuts/Ft0AULB9BVB4/266558f50f6b8e818546312a5ae782dd","description":""},{"label":"https://docs.google.com/forms/d/e/1FAIpQLSfL8OQbbWNCjpEjQZNXNJOqzqebwfEkehAksr73hvkgI118QA/viewform?usp=header","url":"https://docs.google.com/forms/d/e/1FAIpQLSfL8OQbbWNCjpEjQZNXNJOqzqebwfEkehAksr73hvkgI118QA/viewform?usp=header","description":""},{"label":"https://docs.google.com/forms/d/e/1FAIpQLSd1EqKTplop_ODmg9NnGYOCDBY1x0URgY5JXVwXUPTAF9zPig/viewform?usp=header","url":"https://docs.google.com/forms/d/e/1FAIpQLSd1EqKTplop_ODmg9NnGYOCDBY1x0URgY5JXVwXUPTAF9zPig/viewform?usp=header","description":""},{"label":"https://nam10.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdocs.google.com%2Fforms%2Fd%2Fe%2F1FAIpQLSehdI_MeR5sEnIqk2DaQFCAznwQk0l6UOEHa4EbW2_djGPLUA%2Fviewform%3Fusp%3Dpublish-editor&data=05%7C02%7Cakramer%40workingsol.com%7Cb9c14648cdfa423800ae08de9b02703a%7C236c777f80ef48a9ba2c49bdf6dd3725%7C0%7C0%7C639118631930940622%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=%2FgnUc62KMstemlOFqldo8o%2F%2Fwbs8Syzndhx8z08nhzY%3D&reserved=0","url":"https://nam10.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdocs.google.com%2Fforms%2Fd%2Fe%2F1FAIpQLSehdI_MeR5sEnIqk2DaQFCAznwQk0l6UOEHa4EbW2_djGPLUA%2Fviewform%3Fusp%3Dpublish-editor&data=05%7C02%7Cakramer%40workingsol.com%7Cb9c14648cdfa423800ae08de9b02703a%7C236c777f80ef48a9ba2c49bdf6dd3725%7C0%7C0%7C639118631930940622%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=%2FgnUc62KMstemlOFqldo8o%2F%2Fwbs8Syzndhx8z08nhzY%3D&reserved=0","description":""},{"label":"https://docs.google.com/forms/d/e/1FAIpQLSe-cgUHhLpy36JzEp-QxFnccz0bpoAg2pWT3CurOrvWrUrl-Q/viewform?usp=header","url":"https://docs.google.com/forms/d/e/1FAIpQLSe-cgUHhLpy36JzEp-QxFnccz0bpoAg2pWT3CurOrvWrUrl-Q/viewform?usp=header","description":""},{"label":"https://docs.google.com/forms/d/e/1FAIpQLScF9ZxVtyo6P1-QiyltL6TOdJcDjweXHwLiRCq_Hf__R8qsAw/viewform?usp=header","url":"https://docs.google.com/forms/d/e/1FAIpQLScF9ZxVtyo6P1-QiyltL6TOdJcDjweXHwLiRCq_Hf__R8qsAw/viewform?usp=header","description":""}]}]},"NLH":{"pattern":"mixed_text","title":"When to transfer to NLH","sections":[{"header":"","items":[{"text":"When to transfer to NLH","url":"","bold":false},{"text":"Your cx requests a manager or supervisor.","url":"","bold":false},{"text":"Floor support (SME/Resources) will take longer than 15 minutes to contact or isn't available.","url":"","bold":false},{"text":"The issue requires a T2 level tool or access.","url":"","bold":false},{"text":"A Resource tells you to contact NLH.","url":"","bold":false},{"text":"WARM TRANSFERS ONLY","url":"","bold":false},{"text":"Quick Connects","url":"","bold":false},{"text":"GBSG Online Tier 1 Experts: US GBSG OL Next Level Help Phn","url":"","bold":false},{"text":"Mid-Market Tier 1 Experts: US GBSG MM Next Level Help Phn","url":"","bold":false},{"text":"Accountant Group Core Online Tier 1 Experts: US GBSG AG CORE Next Level Help Phn","url":"","bold":false},{"text":"Accountant Group Core Online Tier 1 Experts: US GBSG AG PREMIUM Next Level Help Phn","url":"","bold":false},{"text":"Document the case thoroughly in Salesforce before disengaging.","url":"","bold":true},{"text":"T1 Case note template:","url":"","bold":false},{"text":"1. Customer on the Line: [Enter name]","url":"","bold":false},{"text":"2. Issue Summary: [One-line description of the issue]","url":"","bold":false},{"text":"3. Troubleshooting Completed: [List steps completed: e.g., verified login, reviewed help articles, tested workflows, reviewed investigations, etc.]","url":"","bold":false},{"text":"4. Reason for Escalation: [State why escalation is required: e.g., advanced troubleshooting, deeper product expertise, help article advises tier-2 escalation or an Investigation is needed]","url":"","bold":false},{"text":"NOTE: IF intuit assist captures notes there is no need for you to document case notes.","url":"","bold":false}]}]},"VCI":{"pattern":"mixed_text","title":"VCI","sections":[{"header":"","items":[{"text":"VCI","url":"","bold":false},{"text":"ALL calls should have a Level 2 VCI done, including callbacks","url":"","bold":false},{"text":"QBO VCI","url":"","bold":false},{"text":"PAYROLL VCI","url":"","bold":false},{"text":"PAYMENTS VCI","url":"","bold":false},{"text":"MM/AG","url":"","bold":false}]}]},"Tools":{"pattern":"label_desc_link","title":"Tools","entries":[{"label":"SB-SEG Tools Portal","description":"This is where your phone tool and Salesforce are located.","url":"https://directory.expertapps.a.intuit.com/sbseg.html"},{"label":"CCP","description":"This is your phone tool. Should be CCP Americas V2","url":"https://ccp-us.app.intuit.com/app/ccs/ccpV2"},{"label":"CS Server","description":"Verification Information, Tax Payments, Paycheck History, NSF Holds, and much more.","url":"https://cs.intuit.com/cs/default.jsp?newCompany=Yes"},{"label":"Salesforce","description":"Where your case will pop, fill out your cases, see company and billing information.","url":"https://intuitb2b.lightning.force.com/lightning/n/Heads_Up_Home"},{"label":"Public Login (PL)","description":"Used for assisting correcting a payroll check, seeing archived forms, setup, and much more.","url":""},{"label":"QBO Admin Tool","description":"Where you can see other company information, user list, banking information and much more.","url":"https://qbtool.app.intuit.com/tools/home"},{"label":"OII CSR","description":"Where you can see if a customer's login is active/inactive.","url":"https://oii-csr.app.intuit.com/csr/app?cutover-from-legacy=true"},{"label":"Sentinel","description":"Find return codes for Direct Deposits, Funding Limit and Account Info to trace a DD. Use the COID from CS Server for the Company ID here.","url":"https://at-sentinel.app.intuit.com/sbg-at-sentinel-ui/app"},{"label":"Slack","description":"Speak with your co-workers, find updates and request transfer to another department.","url":"https://app.slack.com/client/E7AN7J5RP/C2G845QHX"},{"label":"Help Panel","description":"Located inside of Salesforce. Help articles created by intuit to assist you.","url":"https://intuitb2b.lightning.force.com/lightning/n/Help_Panel"},{"label":"Quickbase","description":"Find NSF Return Reports here. Intuit Payroll & Payments Quickbase > Online Returns > Magnifying Glass > Use COID from CS ** Can also resend Wire Instructions here.","url":"https://intuitcorp.quickbase.com/nav/main/action/myqb"},{"label":"Elevate","description":"Experts can post questions and read answers.","url":"https://en.intuit.com/sbseg/"},{"label":"Area","description":"Please don\u2019t stress too much into these specific choices, just try to find what fits best!","url":""},{"label":"Subject","description":"This is usually filled in for you.","url":""}]},"Payments":{"pattern":"mixed_text","title":"Payments","sections":[{"header":"","items":[{"text":"Payments","url":"","bold":false},{"text":"Green Dot","url":"","bold":false},{"text":"Funds on Hold","url":"","bold":false},{"text":"Direct number 833-603-0416","url":"","bold":true},{"text":"Learn about funds on hold","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payment-processing/funds-hold/L4WyBLfan_US_en_US","bold":false},{"text":"List of fellow payment's expert help articles","url":"../../../../:x:/p/ehayes/EakZYEnwmiJMm9vflKa09FwB9i1-tNWg9IWzRiqACPYlzg?e=W4I5ia","bold":false},{"text":"QB Checking Decision Tree","url":"https://shcs-playground.app.intuit.com/web-renderer?hideLeftPanel=true&id=L9txhsO66_US_en_US","bold":false},{"text":"Check why merchangs haven't received their funds","url":"https://shcs-playground.app.intuit.com/web-renderer?hideLeftPanel=true&id=L2ZFCsPgJ_US_en_US","bold":false},{"text":"Comprehensive list of KB Articles","url":"https://drive.google.com/file/d/1zU5_RZACyQqFWzjn0Zsr1y0yFluMqUK5/view?usp=sharing","bold":false},{"text":"When to use Green Dot/When to transfer","url":"https://intuit-care.slack.com/archives/C05M0L1EMM5/p1750091442509879","bold":false},{"text":"Payments and QB Checking held funds","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L5U6tLokv_US_en_US&hideLeftPanel=true","bold":false},{"text":"Funds on Hold flow chart","url":"https://files.slack.com/files-pri/T7AN7J5RP-F09218RGQSD/image.png","bold":false},{"text":"IBoss","url":"","bold":false},{"text":"Helpful Videos","url":"","bold":false},{"text":"Learn about QB bill pay in IBoss","url":"https://shcs-playground.app.intuit.com/web-renderer?hideLeftPanel=true&id=2902008","bold":false},{"text":"Risk Ops Video","url":"../../../../:v:/p/mschmid/EQ83vYDmOShIviQTj2nGcKwBH791J7tpJHikfDOSIbM_Cw?e=ynKjkv&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D","bold":false},{"text":"Understand QB bill pay messages in IBoss","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L9npM0TbS_US_en_US&hideLeftPanel=true","bold":false},{"text":"Bill Pay Video","url":"../../../../:v:/p/mschmid/ESpipEBGPYpHtWVo_eETFcsBnwwHiFavTQgdeTZh6YHOkg?e=4DqAza&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D","bold":false},{"text":"Notes on IBoss","url":"file:///C:\\Users\\eliza\\Downloads\\iBoss%20Notes%20(1).pdf","bold":false},{"text":"IBoss video from client","url":"../../../../:v:/p/mschmid/ERIG-RfeoedMlrj9qdxmvkAB_Ja0gZrpZgdzNFmp5RVtGw?e=jvBfvL&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D","bold":false},{"text":"Help Panel Articles","url":"","bold":false},{"text":"T2 Chat Template","url":"","bold":true},{"text":"Setup Payments Account","url":"","bold":false},{"text":"1. What wave and LOB (Core/Payments/Payroll/MM/AG) are you?","url":"","bold":false},{"text":"Application Process for Merchant Accounts","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L4OHT2kHc_US_en_US&hideLeftPanel=true","bold":false},{"text":"2. Did you clear cache and cookies?","url":"","bold":false},{"text":"Connect your QB Payments Account to QB Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/set-payments/connect-quickbooks-payments-account-quickbooks/L8JhK7FBX_US_en_US","bold":false},{"text":"3. What is your smartlook or glance code?\u00a0Glance is always preferred.","url":"","bold":false},{"text":"Clear the Auth ID from the QB company file","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L5LhPRGHm_US_en_US&hideLeftPanel=true","bold":false},{"text":"4. Did you try a different device? If so, which ones?","url":"","bold":false},{"text":"Unmap a merchant service account from a login, software, or service","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L8vNyuMiK_US_en_US&hideLeftPanel=true","bold":false},{"text":"5. What is the issue?","url":"","bold":false},{"text":"Auto Enablement QBO FTU onboarding for QB Online with Payments","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L251nW20L_US_en_US&hideLeftPanel=true","bold":false},{"text":"6. What tools & articles have you used?","url":"","bold":false},{"text":"Troubleshooting Customer Facing E-Invoice Experience","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L8E3xyKH9_US_en_US&hideLeftPanel=true","bold":false},{"text":"7. What was the outcome of your troubleshooting?","url":"","bold":false},{"text":"Record a customer refund in QB Online","url":"","bold":false},{"text":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customer-refunds-credits/record-customer-refund-quickbooks-online/L5PbCkJk8_US_en_US","url":"","bold":false},{"text":"8. Have you found any INVs for this issue?","url":"","bold":false},{"text":"QB Payments declines and errors for credit card transactions","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L302B6r7E_US_en_US&hideLeftPanel=true","bold":false},{"text":"Product Preferences","url":"","bold":false},{"text":"Automatic matching for QB payments","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payment-processing/automatic-matching-quickbooks-payments/L3EydeQEU_US_en_US","bold":false},{"text":"Data and File Management","url":"","bold":false},{"text":"Move your QB DT Payments to QB Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-users/move-quickbooks-desktop-payments-quickbooks-online/L0TLpagvG_US_en_US","bold":false},{"text":"Move a merchant account to another product","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L0fNVj1zu_US_en_US&hideLeftPanel=true","bold":false},{"text":"Setup GoPayment","url":"","bold":false},{"text":"QB Payments card reader features and compatibility","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/card-readers/qb21-qb31-bluetooth-card-reader-features/L1MZf0aD2_US_en_US","bold":false},{"text":"Use items and categories in GoPayment","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/mobile-apps/use-items-categories-gopayment/L5bFc1sri_US_en_US","bold":false},{"text":"Process payments in the GoPayment app","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/process-credit-card-payments/process-payments-gopayment-app/L0XaYTJWZ_US_en_US","bold":false},{"text":"Fix issues with the GoPayment and QB mobile app reader","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/card-readers/fix-issues-gopayment-quickbooks-mobile-app-card/L2BK0uXkw_US_en_US","bold":false},{"text":"Access and Permissions","url":"","bold":false},{"text":"Change user roles for QB payments","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/access-permissions/change-user-roles-quickbooks-payments/L8Rmd5QYS_US_en_US","bold":false},{"text":"Recover your Intuit account when you can't sign in","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/account-management/get-help-sign-quickbooks-online-account/L389eWYin_US_en_US","bold":false},{"text":"Add users to QB Payments","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-users/add-users-quickbooks-payments/L0EYt1K4G_US_en_US","bold":false},{"text":"Business Profile","url":"","bold":false},{"text":"Update business and account info for QB Payments","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payments-account/update-business-account-info/L7EMGpXhV_US_en_US","bold":false},{"text":"Customer Profile","url":"","bold":false},{"text":"Cancel your QB Payments","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/cancel-products-services/cancel-quickbooks-payments-subscription/L4wJIZbKy_US_en_US","bold":false},{"text":"Merchant wishes to close their payments account - Account Closure Procedures","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L1W7bMnxn_US_en_US&hideLeftPanel=true","bold":false},{"text":"Update principal's last name on a Merchant account","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L2unZB2oV_US_en_US&hideLeftPanel=true","bold":false},{"text":"Verify Customer Information (VCI)","url":"https://shcs-playground.app.intuit.com/web-renderer?id=L3zBZmtol_US_en_US&hideLeftPanel=true","bold":false}]}]},"Lead Pass ":{"pattern":"lead_pass","title":"Lead Pass","intro":"LEAD PASS SHOULD BE OFFERED ON EVERY CALL!","qa_sections":[{"header":"Payments","pairs":[{"question":"Questions to Ask","benefit":"Benefits"},{"question":"How do your customers pay you?","benefit":"Customers can pay through the invoice."},{"question":"Are you taking any credit card payments?","benefit":"We accept any digital payments."},{"question":"Do you send recurring invoices?","benefit":"Set up recurring automatic payments."},{"question":"Do your customers complain about reentering their card information?","benefit":"Save card details and authorize the payments."},{"question":"Are you interested in a free, higher APY account?","benefit":"Store money in envelopes to budget better with a 1.75% APY."},{"question":"How quickly do your payments deposit into your account?","benefit":"Have your money deposited within 30 minutes."},{"question":"Do you take payments in person?","benefit":"ACH transfers for no additional fee."},{"question":"Are you currently paying for a payment processing subscription?","benefit":"Quickbooks Checking account is FREE to open."},{"question":"","benefit":"Take payments in person and on the go."}]},{"header":"Payroll","pairs":[{"question":"Do you pay any employees?","benefit":"Next day or same day deposits for employees."},{"question":"How are you paying your employees?","benefit":"Payroll can be automated."},{"question":"Did you know quickbooks generates w2's?","benefit":"Employees can update their info anytime with workforce."},{"question":"Do you have health insurance plans?","benefit":"You can set each employee to their own rate and time of pay."},{"question":"I\\s your payroll the same everytime?","benefit":"See the breakdown of any paycheck."},{"question":"How are you calculating taxes for your paychecks?","benefit":"Enter deductions & contributions."},{"question":"Do your employees have different rates?","benefit":"Auto pay and file taxes and forms."},{"question":"How are you currently filing and paying your taxes?","benefit":"For Elite, we'll pay IRS penalties up to $25k/year and we will represent you to help resolve tax issues with the IRS."},{"question":"How comfortable are you that you are tax compliant?","benefit":"For Premium & Elite, track submit and approve employee time anywhere."}]},{"header":"Advanced","pairs":[{"question":"Do you need to be able to export your company file to your accountant?","benefit":"Create local backups for you or your accountant."},{"question":"Do you create multiple transactions at one time?","benefit":"Create multiple transactions at one time."},{"question":"Are the basic reports enough?","benefit":"Generate reports using custom fields."},{"question":"Do you regularly send out reports?","benefit":"25 user limit."},{"question":"How many users do you need?","benefit":"Custom user roles."},{"question":"What types of reports do you use often?","benefit":"24/7 support"},{"question":"How often do you assign tasks to your team?","benefit":"Reports in depth analysis & metrics for performance."},{"question":"Do you have recurring tasks for your team?","benefit":"Build custom reports."},{"question":"Do you have a hard time getting the support your need?","benefit":"Custom tasks for your team."},{"question":"","benefit":"Automate simple tasks."}]}],"code_sections":[{"header":"Advanced Leads","codes":[{"descriptor":"Advanced Leads","code":"SBC Phn Advanced Sales"}],"notes":[]},{"header":"Payroll Leads","codes":[{"descriptor":"Payroll Leads","code":"SBC Phn Payroll Sales"}],"notes":[]},{"header":"Payments Leads","codes":[{"descriptor":"Payments Leads","code":"SBC Phn Payments Sales"}],"notes":[]},{"header":"Live Leads","codes":[{"descriptor":"Live Leads","code":"SBC Phn QBLive Sales"}],"notes":[]},{"header":"Quickbooks Online","codes":[{"descriptor":"Quickbooks Online","code":"QB Online Sales"}],"notes":[]},{"header":"Using Slack for Leadpass","codes":[],"notes":["If you we able to pitch your lead - go to the #wsol-rmt-leadpass channel in slack","Use the workflow pinned at the top titled LEAD TRACKER"]}]},"Migration Checklist":{"pattern":"mixed_text","title":"Migration Steps (From DT to OL)","sections":[{"header":"","items":[{"text":"Migration Steps (From DT to OL)","url":"","bold":true},{"text":"Learn how features and data move from QuickBooks Desktop to QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/import-export-data-files/expect-switch-quickbooks-desktop-quickbooks-online/L0dEyNosU_US_en_US?uid=lumpkvyc","bold":false},{"text":"You may receive a transfer from sales for a customer looking to migrate.","url":"","bold":false},{"text":"These steps should be followed before making a warm transfer to the DTM Team @ QBO Phn DT Migration Support","url":"","bold":false},{"text":"Pre-Checks","url":"","bold":true},{"text":"Please use EVERY decision tree during your migration assistance with the customer.","url":"","bold":true}]},{"header":"DTM Determination Method","items":[{"text":"https://app.smartsheet.com/b/form/160fe9fa2a314c7cb9b4178f428b9ec0","url":"https://app.smartsheet.com/b/form/160fe9fa2a314c7cb9b4178f428b9ec0","bold":false}]},{"header":"Desktop Checklist","items":[{"text":"https://app.smartsheet.com/b/form/7c167430e6e24a5a9067db628f18590e","url":"https://app.smartsheet.com/b/form/7c167430e6e24a5a9067db628f18590e","bold":false}]},{"header":"DTM Online Checklist","items":[{"text":"https://app.smartsheet.com/b/form/119dcf1c523f40c293c43f4cd15c1f38","url":"https://app.smartsheet.com/b/form/119dcf1c523f40c293c43f4cd15c1f38","bold":false}]},{"header":"DTM Migration Steps","items":[{"text":"https://app.smartsheet.com/b/form/07f07c5f3d4848f8b526a7826bdacd53","url":"https://app.smartsheet.com/b/form/07f07c5f3d4848f8b526a7826bdacd53","bold":false}]},{"header":"Learn How Features and Data Move from QBDT to QBO","items":[{"text":"https://app.smartsheet.com/b/form/1e67210eccbb40f09ef1aa1474b070e2","url":"https://app.smartsheet.com/b/form/1e67210eccbb40f09ef1aa1474b070e2","bold":false}]},{"header":"Common Error and Issues","items":[{"text":"Your customer's expected QBO company is not on the list of accounts for Import","url":"","bold":true},{"text":"FIX :","url":"","bold":true},{"text":"Confirm the company is not on QBSE, or a standalone payroll. Recheck the Import Expiry Date in QBO Admin Tool.","url":"","bold":false},{"text":"Error : Please delete all Employees already entered in Quickbooks online","url":"","bold":true},{"text":"Guide the customer through the process of deleting data and starting over.","url":"","bold":false},{"text":"ARTICLE","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/intuit-subscriptions/delete-data-start-quickbooks-online/L0cpXkDlh_US_en_US","bold":true},{"text":"Customer receives an email advising file could not be imported","url":"","bold":true},{"text":"Request the customer attempt to import into a test QBO Company to rule out the issues being specific to the QBO Shell.","url":"","bold":false},{"text":"THis can be done either through trial or paid company created under the same login.","url":"","bold":false},{"text":"If you run into errors during the migration process, warm transfer your customer to the DTM Support Team at QBO PHN DT Migration Support","url":"","bold":true}]}]},"Translator":{"pattern":"procedure","title":"Translator","intro_links":[{"label":"Article 1","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"},{"label":"Article 2","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"},{"label":"Article 3","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"},{"label":"Article 4","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"},{"label":"Article 5","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"},{"label":"Article 6","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"},{"label":"Article 7","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"},{"label":"Article 8","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4jhBabSv_US_en_US"}],"sections":[{"header":"","steps":[{"text":"Translator","url":"","substep":false}]},{"header":"Connect your Call with the Language Line","steps":[{"text":"1. Place your customer on hold.","url":"","substep":false},{"text":"2. Select Quick Connects and enter the phone number for the Language Line, 800-367-9559.","url":"","substep":false},{"text":"3. Provide the following information to the Language Line:","url":"","substep":false},{"text":"a. Client ID: 744324","url":"","substep":true},{"text":"b. The language your customer needs","url":"","substep":true},{"text":"c. Access Code: 33105","url":"","substep":true},{"text":"4. Wait for the Operator to connect your call with an interpreter.","url":"","substep":false},{"text":"5. Give a brief summary of your call to the interpreter.","url":"","substep":false},{"text":"6. Add your customer to the conversation and follow the interpreter interaction guidelines. Never disconnect yourself from the call or transfer your customer to the interpreter!","url":"","substep":false},{"text":"7. Before you end the call with the interpreter, say \u201cEnd of Call\u201d to them.","url":"","substep":false}]}]},"How Tos":{"pattern":"multi_column_catalog","title":"Reports","sections":[{"header":"Reports","col":1,"row":2,"items":[{"label":"Run reports in QuickBooks Online","url":"https://community.intuit.com/articles/1761101-run-reports-in-quickbooks-online","description":""},{"label":"Customize reports in QuickBooks Online using modern view","url":"https://community.intuit.com/articles/2226171-customize-reports-in-quickbooks-online-using-modern-view","description":""},{"label":"Use reports to track cash flow in QuickBooks Online","url":"https://community.intuit.com/articles/1968281-use-reports-to-track-cash-flow-in-quickbooks-online","description":""},{"label":"Common custom reports in QuickBooks Online","url":"https://community.intuit.com/articles/1771641-common-custom-reports-in-quickbooks-online","description":""},{"label":"Use reports to see your sales and inventory status","url":"https://community.intuit.com/articles/1770096-use-reports-to-see-your-sales-and-inventory-status","description":""},{"label":"Export your reports to Excel from QuickBooks Online","url":"https://community.intuit.com/articles/1769304-export-your-reports-to-excel-from-quickbooks-online","description":""},{"label":"Year-end guide for QuickBooks Online","url":"https://community.intuit.com/articles/1763190-year-end-guide-for-quickbooks-online","description":""},{"label":"Run reports in QuickBooks Online","url":"https://community.intuit.com/articles/1761101-run-reports-in-quickbooks-online","description":""},{"label":"List of QuickBooks Online reports available in Modern view","url":"https://community.intuit.com/articles/3456607-list-of-quickbooks-online-reports-available-in-modern-view","description":""},{"label":"Reports included in your QuickBooks Online subscription","url":"https://community.intuit.com/articles/1769152-reports-included-in-your-quickbooks-online-subscription","description":""},{"label":"View and edit management reports in QuickBooks Online","url":"https://community.intuit.com/articles/2698236-view-and-edit-management-reports-in-quickbooks-online","description":""},{"label":"Impacts of inventory tracking on the Balance Sheet and Profit & Loss reports in QuickBooks Online","url":"https://community.intuit.com/articles/1769163-impacts-of-inventory-tracking-on-the-balance-sheet-and-profit-loss-reports-in-quickbooks-online","description":""}]},{"header":"Sales Forms","col":11,"row":2,"items":[{"label":"Creating Invoices","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/create-invoices-in-quickbooks-online/00/185967","description":""},{"label":"Creating Estimates","url":"https://quickbooks.intuit.com/learn-support/en-us/estimate-costs/set-up-and-use-estimates/00/186122","description":""},{"label":"Create and Apply Credit Memos","url":"https://quickbooks.intuit.com/learn-support/en-us/customer-refunds-and-credits/enter-and-apply-credit-memos-and-delayed-credits-in-quickbooks/00/186120","description":""},{"label":"Create the same invoice for Multiple Customers","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/how-to-set-up-a-recurring-invoice-for-customers/00/186206","description":""},{"label":"Create Projects","url":"https://quickbooks.intuit.com/learn-support/en-us/intuit-account-billing/set-up-and-use-the-projects-feature/00/186112","description":""},{"label":"Add, customize, or remove logos on sales forms","url":"https://community.intuit.com/articles/1770496-add-customize-or-remove-logos-on-sales-forms","description":""},{"label":"Turn tips on or off for sales forms in QuickBooks Online","url":"https://community.intuit.com/articles/2642084-turn-tips-on-or-off-for-sales-forms-in-quickbooks-online","description":""},{"label":"Create budgets in QuickBooks Online","url":"https://community.intuit.com/articles/1771966-create-budgets-in-quickbooks-online","description":""},{"label":"Edit a recurring template","url":"https://quickbooks.intuit.com/learn-support/en-us/memorize-transactions/edit-a-recurring-template/00/186410","description":""},{"label":"How to set up or change customer messages in QuickBooks Online","url":"https://community.intuit.com/articles/1771635-how-to-set-up-or-change-customer-messages-in-quickbooks-online","description":""},{"label":"Add a discount to an invoice or sales receipt in QuickBooks Online","url":"https://community.intuit.com/articles/1771136-add-a-discount-to-an-invoice-or-sales-receipt-in-quickbooks-online","description":""},{"label":"Track hourly labor costs and profitability by project","url":"https://quickbooks.intuit.com/learn-support/en-us/pay-wages/get-your-project-labor-costs-in-real-time/00/249136","description":""},{"label":"Email receipts and bills to QuickBooks Online","url":"https://community.intuit.com/articles/1806470-email-receipts-and-bills-to-quickbooks-online","description":""},{"label":"Apply late fees to overdue invoices automatically","url":"https://quickbooks.intuit.com/learn-support/en-us/chart-of-accounts/setting-up-and-applying-automatic-late-fees/00/185714","description":""},{"label":"Set up your sales tax","url":"https://quickbooks.intuit.com/learn-support/en-us/sales-taxes/set-up-your-sales-tax/00/186391","description":""}]},{"header":"Settings","col":18,"row":2,"items":[{"label":"Getting Started","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-users/an-introduction-to-the-home-dashboard/00/185999","description":""},{"label":"Upgrade or downgrade your QuickBooks Online edition","url":"https://community.intuit.com/articles/1764278-upgrade-or-downgrade-your-quickbooks-online-edition","description":""},{"label":"Set up and use location tracking in QuickBooks Online","url":"https://community.intuit.com/articles/1771220-set-up-and-use-location-tracking-in-quickbooks-online","description":""},{"label":"Manage your QuickBooks Online subscription and update billing.","url":"https://community.intuit.com/articles/1864990-manage-your-quickbooks-online-subscription-and-update-billing","description":""},{"label":"Edit Company Settings","url":"https://quickbooks.intuit.com/learn-support/en-us/update-products/edit-your-company-settings-in-quickbooks-online/00/185960","description":""},{"label":"Setup and Track Inventory","url":"https://quickbooks.intuit.com/learn-support/en-us/set-up-inventory-lists/set-up-and-track-your-inventory/00/186430","description":""},{"label":"Setting Up Initial Cost for inventory items","url":"https://community.intuit.com/articles/2892111-set-up-initial-cost-for-inventory-items-in-quickbooks-online","description":""},{"label":"Fix QuickBooks Online printing issues on browsers for Windows","url":"https://quickbooks.intuit.com/learn-support/en-us/payment-terminals/fix-quickbooks-online-printing-issues-on-browsers-for-windows/00/186105","description":""},{"label":"Change product and service item types in QuickBooks Online","url":"https://community.intuit.com/articles/1772442-change-product-and-service-item-types-in-quickbooks-online","description":""},{"label":"Configure an account for a nonprofit organization","url":"https://community.intuit.com/articles/1761201-configure-an-account-for-a-nonprofit-organization","description":""},{"label":"Set up advanced account settings in QuickBooks Online","url":"https://community.intuit.com/articles/1772476-set-up-advanced-account-settings-in-quickbooks-online","description":""},{"label":"Troubleshoot if customers aren't receiving emails from QuickBooks Online","url":"https://community.intuit.com/articles/1773020-troubleshoot-if-customers-aren-t-receiving-emails-from-quickbooks-online","description":""},{"label":"Set up QuickBooks Time in QuickBooks Online or QuickBooks Online Payroll","url":"https://community.intuit.com/articles/1917024-set-up-quickbooks-time-in-quickbooks-online-or-quickbooks-online-payroll","description":""}]},{"header":"Bank Accounts","col":1,"row":15,"items":[{"label":"Link a bank deposit to an invoice in QuickBooks Online","url":"https://community.intuit.com/articles/1771530-link-a-bank-deposit-to-an-invoice-in-quickbooks-online","description":""},{"label":"Format CSV files in Excel to get bank transactions into QuickBooks","url":"https://community.intuit.com/articles/1773084-format-csv-files-in-excel-to-get-bank-transactions-into-quickbooks","description":""},{"label":"Void or delete transactions in QuickBooks Online","url":"https://community.intuit.com/articles/1771924-void-or-delete-transactions-in-quickbooks-online","description":""},{"label":"Set up bank rules to categorize online banking transactions in QuickBooks Online","url":"https://community.intuit.com/articles/1770646-set-up-bank-rules-to-categorize-online-banking-transactions-in-quickbooks-online","description":""},{"label":"Connect a Bank Account","url":"https://quickbooks.intuit.com/learn-support/en-us/chart-of-accounts/connect-bank-and-credit-card-accounts-to-quickbooks-online/00/186370","description":""},{"label":"Add and match downloaded banking transactions","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/categorize-match-online-bank-transactions-online/L1bTafTz3_US_en_US","description":""},{"label":"Upload more than 90 days of bank transactions","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/import-transactions/manually-upload-transactions-quickbooks-online/L0rE9OXBz_US_en_US","description":""},{"label":"Banking rules and recognition for downloaded transactions","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/set-bank-rules-categorize-online-banking-online/L0mjJl0nD_US_en_US","description":""},{"label":"Set up bank or credit card account that attaches to a primary account","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/connect-bank-credit-card-accounts-quickbooks/L4yDAHMNH_US_en_US","description":""},{"label":"Bank Feeds Direct Connect FAQ","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/direct-feeds/oauth-changing-online-bank-connections/L6YSg8zOh_US_en_US","description":""},{"label":"Manually upload transactions into QuickBooks Online","url":"https://community.intuit.com/articles/1776037-manually-upload-transactions-into-quickbooks-online","description":""},{"label":"Categorize online bank transactions in QuickBooks Online","url":"https://community.intuit.com/articles/1773491-categorize-online-bank-transactions-in-quickbooks-online","description":""},{"label":"Disconnect accounts connected to online banking in QuickBooks Online","url":"https://community.intuit.com/articles/1760238-disconnect-accounts-connected-to-online-banking-in-quickbooks-online","description":""},{"label":"Request a bank to be added or updated to Bank Feeds","url":"https://community.intuit.com/articles/1767435","description":""},{"label":"Link your American Express Business account to QuickBooks Online","url":"https://community.intuit.com/articles/1771466-link-your-american-express-business-account-to-quickbooks-online","description":""},{"label":"Record and make bank deposits in QuickBooks Online","url":"https://community.intuit.com/articles/1773366-record-and-make-bank-deposits-in-quickbooks-online","description":""},{"label":"Transfer funds between accounts","url":"https://community.intuit.com/articles/1775225-transfer-funds-between-accounts","description":""},{"label":"Find your bank or credit card account when you connect to online banking","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/find-bank-credit-card-account-connect-online/L1S3CYSBC_US_en_US","description":""},{"label":"Download the most recent bank and credit card transactions in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/multi-factor-authentication/download-recent-bank-credit-card-transactions/L86TTVI3Y_US_en_US","description":""},{"label":"Exclude duplicates or personal expenses from downloaded bank transactions","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-transactions/exclude-bank-transaction-downloaded-quickbooks/L8icSVVJ6_US_en_US","description":""},{"label":"Adding Transactions","url":"https://quickbooks.intuit.com/learn-support/en-us/bank-registers/add-transactions-to-account-registers-in-quickbooks-online/00/186263","description":""},{"label":"About bank or credit card subaccount setup","url":"https://community.intuit.com/articles/1770513-about-bank-or-credit-card-subaccount-setup","description":""},{"label":"Set up bank rules to categorize online banking transactions in QuickBooks Online","url":"https://community.intuit.com/articles/1770646-set-up-bank-rules-to-categorize-online-banking-transactions-in-quickbooks-online","description":""},{"label":"Record a retainer or deposit","url":"https://community.intuit.com/articles/1772509-record-a-retainer-or-deposit","description":""}]},{"header":"Reconciliation","col":18,"row":16,"items":[{"label":"What's a reconciliation?","url":"https://community.intuit.com/articles/1773215-what-s-a-reconciliation","description":""},{"label":"Tips for year-end reconciliation in QuickBooks Online","url":"https://community.intuit.com/articles/1770199-tips-for-year-end-reconciliation-in-quickbooks-online","description":""},{"label":"How to view details for missing reconciliation reports or reconciled transactions in QuickBooks Online","url":"https://community.intuit.com/articles/1785685-how-to-view-details-for-missing-reconciliation-reports-or-reconciled-transactions-in-quickbooks-online","description":""},{"label":"Fix issues at the end of a reconciliation in QuickBooks Online","url":"https://community.intuit.com/articles/1773306-fix-issues-at-the-end-of-a-reconciliation-in-quickbooks-online","description":""},{"label":"Undo or remove transactions from reconciliations in QuickBooks Online","url":"https://community.intuit.com/articles/1767812-undo-or-remove-transactions-from-reconciliations-in-quickbooks-online","description":""},{"label":"Fix issues for accounts you've reconciled in the past in QuickBooks Online","url":"https://community.intuit.com/articles/1770719-fix-issues-for-accounts-you-ve-reconciled-in-the-past-in-quickbooks-online","description":""},{"label":"How do I view, print, or export a reconciliation report?","url":"https://community.intuit.com/articles/1770971-how-do-i-view-print-or-export-a-reconciliation-report","description":""},{"label":"Get bank statements directly from your bank when you reconcile in QuickBooks Online","url":"https://community.intuit.com/articles/1972878-get-bank-statements-directly-from-your-bank-when-you-reconcile-in-quickbooks-online","description":""},{"label":"Reconciliation errors in QuickBooks Online","url":"https://community.intuit.com/articles/1767555-reconciliation-errors-in-quickbooks-online","description":""},{"label":"Fix issues the first time you reconcile an account in QuickBooks Online","url":"https://community.intuit.com/articles/1771686-fix-issues-the-first-time-you-reconcile-an-account-in-quickbooks-online","description":""},{"label":"Reconcile transactions that are older than your opening balance in QuickBooks Online","url":"https://community.intuit.com/articles/1769225-reconcile-transactions-that-are-older-than-your-opening-balance-in-quickbooks-online","description":""},{"label":"Find previous reconciled adjustments","url":"https://community.intuit.com/articles/1773181-find-previous-reconciled-adjustments","description":""},{"label":"What to do if you didn't enter an opening balance in QuickBooks Online","url":"https://community.intuit.com/articles/1780697-what-to-do-if-you-didn-t-enter-an-opening-balance-in-quickbooks-online","description":""}]},{"header":"Check Printing","col":11,"row":18,"items":[{"label":"Print Checks on Blank Stock","url":"https://quickbooks.intuit.com/learn-support/en-us/print-checks/print-checks-on-blank-check-stock/00/185706","description":""},{"label":"Print Settings for Printing Checks","url":"https://quickbooks.intuit.com/learn-support/en-us/write-checks/align-how-your-checks-print/00/185561","description":""},{"label":"How To Reprint Checks","url":"https://quickbooks.intuit.com/learn-support/en-us/write-checks/how-to-reprint-checks-and-sales-forms/00/185933","description":""}]},{"header":"Chart of Accounts","col":11,"row":31,"items":[{"label":"Find, review, and edit transactions in account registers in QuickBooks Online","url":"https://community.intuit.com/articles/1777153-find-review-and-edit-transactions-in-account-registers-in-quickbooks-online","description":""},{"label":"Manage default and special accounts in your QuickBooks Online chart of accounts","url":"https://community.intuit.com/articles/1772124-manage-default-and-special-accounts-in-your-quickbooks-online-chart-of-accounts","description":""},{"label":"Add an account to your chart of accounts in QuickBooks Online","url":"https://community.intuit.com/articles/1876272-add-an-account-to-your-chart-of-accounts-in-quickbooks-online","description":""},{"label":"Create subaccounts in your chart of accounts in QuickBooks Online","url":"https://community.intuit.com/articles/1770226-create-subaccounts-in-your-chart-of-accounts-in-quickbooks-online","description":""},{"label":"Use account numbers in your chart of accounts in QuickBooks Online","url":"https://community.intuit.com/articles/1773000-use-account-numbers-in-your-chart-of-accounts-in-quickbooks-online","description":""},{"label":"Make an account inactive on your chart of accounts in QuickBooks Online","url":"https://community.intuit.com/articles/1769682-make-an-account-inactive-on-your-chart-of-accounts-in-quickbooks-online","description":""},{"label":"How to import Chart of Accounts templates","url":"https://community.intuit.com/articles/1760081-how-to-import-chart-of-accounts-templates","description":""},{"label":"Export reports, lists, and other data from QuickBooks Online","url":"https://community.intuit.com/articles/1776519-export-reports-lists-and-other-data-from-quickbooks-online","description":""},{"label":"Set up an asset account in QuickBooks Online","url":"https://community.intuit.com/articles/1780727-set-up-an-asset-account-in-quickbooks-online","description":""},{"label":"Learn about usage limits in QuickBooks Online","url":"https://community.intuit.com/articles/1795611-learn-about-usage-limits-in-quickbooks-online","description":""},{"label":"Remove deleted accounts from reports in QuickBooks Online","url":"https://community.intuit.com/articles/1768152-remove-deleted-accounts-from-reports-in-quickbooks-online","description":""},{"label":"Modify your chart of accounts for your 1099-MISC and 1099-NEC filing","url":"https://community.intuit.com/articles/2018851-modify-your-chart-of-accounts-for-your-1099-misc-and-1099-nec-filing","description":""},{"label":"Error: Something you are trying to use has been deleted or made inactive","url":"https://community.intuit.com/articles/1767840-error-something-you-are-trying-to-use-has-been-deleted-or-made-inactive","description":""}]}]},"Banking Issues":{"pattern":"multi_column_catalog","title":"Banking Errors and Issues","sections":[{"header":"Error Codes","col":1,"row":2,"items":[{"label":"Fix bank error 101 in QuickBooks Online","url":"https://community.intuit.com/articles/1895957-fix-bank-error-101-in-quickbooks-online","description":""},{"label":"Fix bank error 102 and 105 in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/fix-bank-error-102-105/L5MRNfzfs_US_en_US","description":""},{"label":"Fix bank error 106 in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/fix-bank-error-106/L0mlvzxKZ_US_en_US","description":""},{"label":"Fix bank error 108 in QuickBooks Online and QuickBooks Self-Employed","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-connectivity/fix-bank-error-108/L0veSKo1x_US_en_US","description":""},{"label":"Fix bank error 109 in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-connectivity/fix-bank-error-109/L9IQwogIX_US_en_US","description":""},{"label":"Fix bank error 187 in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/security-risk/fix-bank-error-187/L7qzx0Fni_US_en_US","description":""},{"label":"Fix bank error 185 in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/direct-feeds/fix-bank-error-185/L2BziYmlL_US_en_US","description":""},{"label":"Fix bank error 179","url":"https://community.intuit.com/articles/1760662-fix-bank-error-179","description":""},{"label":"Banking Error 155","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-feeds/fix-bank-error-155/L8lcpA3b2_US_en_US","description":""},{"label":"Banking Error 323","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/fix-bank-error-323/L2G3PNd8I_US_en_US","description":""},{"label":"Banking error 324","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-transactions/fix-banking-error-324/L1H3AP1nK_US_en_US","description":""},{"label":"Fix bank error 390 and 1000 in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/fix-bank-error-390-1000-quickbooks-online/L8t6KpfdI_US_en_US","description":""},{"label":"Fix Error 350 in QuickBooks Online","url":"https://community.intuit.com/articles/1915471-fix-error-350-in-quickbooks-online","description":""},{"label":"Fix bank error 192 in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-feeds/fix-bank-error-192/L2qMZWAfI_US_en_US","description":""},{"label":"Why does my Online Banking account show code 107 in QuickBooks Online?","url":"https://community.intuit.com/articles/1759707-why-does-my-online-banking-account-show-code-107-in-quickbooks-online","description":""},{"label":"Fix error 81624: I can't pay my QuickBooks Online subscription","url":"https://community.intuit.com/articles/2281150-fix-error-81624-i-can-t-pay-my-quickbooks-online-subscription","description":""},{"label":"Fix bank error 591 for an American Express Business account","url":"https://community.intuit.com/articles/1976101-fix-bank-error-591-for-an-american-express-business-account","description":""},{"label":"What to do if you get a bank error or can't download transactions in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/get-bank-error-download-transactions-quickbooks/L5Tek4yh7_US_en_US","description":""}]},{"header":"Other Issues","col":10,"row":2,"items":[{"label":"How do I troubleshoot Online Banking Issues in QuickBooks Online?","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L2NUViL5j_US_en_US","description":""},{"label":"Escalate Bank Feed Issues for FDS and FDP","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L8O6PRal1_US_en_US","description":""},{"label":"Fix mistakes on your bank or credit card statement","url":"https://community.intuit.com/articles/1760295-fix-mistakes-on-your-bank-or-credit-card-statement","description":""},{"label":"Common errors for importing bank transactions using CSV in QuickBooks Online","url":"https://community.intuit.com/articles/1863937-common-errors-for-importing-bank-transactions-using-csv-in-quickbooks-online","description":""},{"label":"Fix blank page when updating Chase connection in QuickBooks Online","url":"https://community.intuit.com/articles/3355473-fix-blank-page-when-updating-chase-connection-in-quickbooks-online","description":""},{"label":"Report Online Banking Errors - Script Errors for Downloaded Transactions","url":"https://community.intuit.com/articles/1768522","description":""},{"label":"Troubleshooting existing bank connection issues","url":"https://community.intuit.com/articles/1765683-troubleshooting-existing-bank-connection-issues","description":""},{"label":"Interest or bank charge shows up twice when reconciling and in the register in QuickBooks Online","url":"https://community.intuit.com/articles/1772883-interest-or-bank-charge-shows-up-twice-when-reconciling-and-in-the-register-in-quickbooks-online","description":""},{"label":"Error: Transaction already exists - save anyway?","url":"https://community.intuit.com/articles/1763885-error-transaction-already-exists-save-anyway","description":""},{"label":"Troubleshoot Chase Bank connection issue in QuickBooks Online","url":"https://community.intuit.com/articles/3018742-troubleshoot-chase-bank-connection-issue-in-quickbooks-online","description":""},{"label":"Fix transactions affected by outdated rules","url":"https://community.intuit.com/articles/3231233-fix-transactions-affected-by-outdated-rules","description":""},{"label":"Fix bank upload errors in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-transactions/fix-bank-upload-errors-quickbooks-online/L6FBh3zDC_US_en_US","description":""},{"label":"My QuickBooks Online bank account balance is different from my actual bank balance","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/statement-reconciliation/fix-issues-accounts-reconciled-past-quickbooks/L8lx6PQQ5_US_en_US","description":""},{"label":"Fix online banking errors after a bank merger","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-feeds/fix-online-banking-errors-bank-merger/L0ET4UMcI_US_en_US","description":""},{"label":"How to fix issues connecting American Express Business account to QuickBooks Online","url":"https://community.intuit.com/articles/1760762-how-to-fix-issues-connecting-american-express-business-account-to-quickbooks-online","description":""},{"label":"What to do if you can\u2019t find downloaded transactions in QuickBooks Online","url":"https://community.intuit.com/articles/1769775-what-to-do-if-you-can-t-find-downloaded-transactions-in-quickbooks-online","description":""}]}]},"Log In Issues":{"pattern":"mixed_text","title":"Log In Issues","sections":[{"header":"Log In Issues","items":[{"text":"Account Recovery Form","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/account-management/get-help-sign-quickbooks-online-account/L389eWYin_US_en_US","bold":false},{"text":"This form can be used if","url":"","bold":false},{"text":"If the customer is having issues changing their phone number or email address","url":"","bold":false},{"text":"If the customer's verification code isn't working","url":"","bold":false},{"text":"If the customer reset their password and now they can't sign in.","url":"","bold":false},{"text":"If the customer forgot their USER ID or password","url":"","bold":false},{"text":"Primary Admin Change Request","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/primary-administrator/request-primary-admin-contact/L2P0XAUIT_US_en_US","bold":false},{"text":"This for can be used if","url":"","bold":false},{"text":"The customer's original primary admin has passed","url":"","bold":false},{"text":"The  business has been sold and the new owner needs to gain access","url":"","bold":false},{"text":"The customer is having issues assigning a primary admin","url":"","bold":false},{"text":"Reactivation Request in Salesforce","url":"","bold":false},{"text":"Where can it be found?","url":"","bold":false},{"text":"Process a Reactivation Request","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4O9lZ14r_US_en_US","bold":false},{"text":"To the right of the billing tab, click the drop down on more, and select reactivation request and fill in the information.","url":"","bold":false},{"text":"This form should ONLY be used if","url":"","bold":false},{"text":"When looking in OII and the caller's log in is inactive","url":"","bold":false}]}]},"Billing Issues":{"pattern":"mixed_text","title":"Billing Issues","sections":[{"header":"Billing Issues","items":[{"text":"Billing Tab Info","url":"","bold":true},{"text":"Billing Tab is Used for","url":"","bold":true},{"text":"Seeing Individual bills -To see the details of each bill, click the bill, then the eye.","url":"","bold":false},{"text":"Subscription updates - All their subscriptions, when they signed up, and their next charge date.","url":"","bold":false},{"text":"Cancel- Cancel a customer's subscription in the event the customer cannot do it.","url":"","bold":false},{"text":"Revoke Cancel - To revoke a cancellation in-progress.","url":"","bold":false},{"text":"Transfer Billing - If a customer currently has their payment set up through Apple, Google, or their accountant, this button will switch the billing to the customer through Intuit.","url":"","bold":false},{"text":"Charge Lookup - Used to lookup a specific charge that may not be tied to this account.","url":"","bold":false},{"text":"https://accounts.intuit.com/app/oicl","url":"https://accounts.intuit.com/app/oicl","bold":false},{"text":"Billing Profile - This shows you exactly which payment method is being used for the subscription.","url":"","bold":false},{"text":"Manage billing, payment, and subscription info in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/account-management/manage-billing-payment-subscription-info-online/L6tkYG2Nh_US_en_US","bold":false},{"text":"If the customer is having difficulty downgrading, email them this link.","url":"","bold":true},{"text":"app.qbo.intuit.com/app/changeplan","url":"","bold":false},{"text":"Request a Refund","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/intuit-refunds/request-refund-quickbooks-product/L4BOVrmUn_US_en_US","bold":false},{"text":"Obill - Subscription Status","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L7NU5FiU7_US_en_US","bold":false}]}]},"Payroll Links":{"pattern":"multi_column_catalog","title":"Process Links","sections":[{"header":"Process Links","col":1,"row":1,"items":[{"label":"Correction or Amendment Cases","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L1bV5Pojk_US_en_US","description":""},{"label":"Review a Payroll Correction or Amendment Case","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9rYKwMJC_US_en_US","description":""},{"label":"Payroll Collections Team Decision Tree","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9J6Ej5Mj_US_en_US","description":""},{"label":"Tax Ops Pay and File Decision Tree","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L8TkEl16s_US_en_US","description":""},{"label":"Risk Inquiry Request","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0c5h91AL_US_en_US","description":""},{"label":"Orphan Transaction Tool","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L6gjypiYE_US_en_US","description":""},{"label":"CASE 360","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0SilzJpp_US_en_US","description":""},{"label":"Sentinel Terms","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L0H4pBUvX_US_en_US","description":""},{"label":"Billing Sync Tool for Obill","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L1g0vytnO_US_en_US","description":""},{"label":"https://cs.intuit.net/cs/account/syncCareTool.jsp","url":"","description":""},{"label":"Employee Sync Tool","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9O0oqHHa_US_en_US","description":""},{"label":"https://cs.intuit.net/cs/setup/syncEmployeeToQBO.jsf","url":"","description":""},{"label":"Bulk Fix Tool","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0jh03pQI_US_en_US","description":""},{"label":"https://cs.intuit.net/updateData/QBOPBulkFix.jsp","url":"","description":""},{"label":"Something you are trying to use has been deleted or made inactive.","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L53Zr5jTo_US_en_US","description":""}]},{"header":"Bank","col":8,"row":1,"items":[{"label":"Bank Connection / Bank Status","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L76BraZgj_US_en_US","description":""},{"label":"Direct Deposit Bank Block","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L8ctkmndU_US_en_US","description":""},{"label":"ACH Return Codes","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll-processes/ach-automated-clearing-house-return-code-reference/L12gfXmBq_US_en_US?uid=ltf621m0","description":""},{"label":"Trace a Direct Deposit","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L08OEmZUC_US_en_US","description":""},{"label":"Verify Bank Account for Payroll","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L07niOyNX_US_en_US","description":""},{"label":"Over Direct Deposit Limit","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/security-risk/get-help-youre-direct-deposit-limit/L04DWCX0R_US_en_US?uid=ltf71yyl","description":""},{"label":"Resolve NSF on Payroll Service","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/accounting-bookkeeping/resolve-non-sufficient-funds-nsf-hold-payroll/L143xmSB8_US_en_US?uid=ltf6t20y","description":""},{"label":"Intuit company information for payroll accounts","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4V8GytMS_US_en_US","description":""}]},{"header":"Taxes","col":13,"row":1,"items":[{"label":"Special Setup By State","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9ki1lmpy_US_en_US","description":""},{"label":"Multistate Withholding","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L6chuFZQp_US_en_US","description":""},{"label":"Add or Change State Account Number","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/state-taxes/add-change-company-state-account-number/L28zJh3Tn_US_en_US?uid=ltf7af64","description":""},{"label":"Set Up Local Taxes","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/taxation/set-local-taxes-online-payroll/L2RWrCe86_US_en_US?uid=ltf673m1","description":""},{"label":"Pennsylvania Local Tax Support","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L88jFOW8N_US_en_US","description":""},{"label":"Record Tax Payments made outside of QBO","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/prior-payroll/recording-prior-tax-payments/L5ohwtjAk_US_en_US?uid=ltf7dn3x","description":""},{"label":"Change Status of Payroll Tax Jurisdictions","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0ldJrBLS_US_en_US","description":""},{"label":"Tax Rate is Incorrect","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L19xAU1NF_US_en_US","description":""},{"label":"Send in Payroll Tax Notice","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/tax-notifications/receive-tax-notice/L4nRS6kHu_US_en_US?uid=ltf6ium7","description":""},{"label":"Email address for tax notices\u00a0taxnoticeresolution@intuit.com","url":"mailto:taxnoticeresolution@intuit.com","description":""},{"label":"Fix Underpaid Payroll Taxes","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/employment-taxes/resolve-payroll-tax-underpayment/L3Rg03bPg_US_en_US?uid=ltf6zjlb","description":""},{"label":"State Agency Websites","url":"https://quickbooks.intuit.com/learn-support/en-us/payroll-compliance/payroll-tax-compliance-links/00/390758","description":""},{"label":"Set up federal and state unemployment insurance for churches and nonprofits","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/unemployment-taxes/set-federal-state-unemployment-insurance-churches/L6OXISLkn_US_en_US?uid=luld0lh9","description":""}]},{"header":"Paychecks and Employees","col":21,"row":1,"items":[{"label":"Direct Deposit Reversal","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L4ZYJuTW5_US_en_US","description":""},{"label":"Troubleshoot Auto Payroll","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll-setup/manage-auto-payroll/L0M7xPrPG_US_en_US?uid=ltf6r3dj","description":""},{"label":"FCR : Rollback and Recreate","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L7SaPwvkx_US_en_US","description":""},{"label":"FCR : Recalc YTD","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L76fIcv2S_US_en_US","description":""},{"label":"Setup and Repay Employee Advances","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll-additions-deductions/create-employee-advance/L6KVkqAmE_US_en_US?uid=ltf6mk2b","description":""},{"label":"Create a Zero Net Paycheck","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/taxation/create-zero-net-paycheck/L2cNLCiTe_US_en_US?uid=ltf6n9j7","description":""},{"label":"Fix \"the name supplied already exists\" error","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/list-management/error-name-supplied-already-exists-another-vendor/L1WHjwNAJ_US_en_US","description":""},{"label":"Create Final Paychecks for Terminated Employees","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/create-final-paychecks-terminated-employees/L5mkMG81n_US_en_US?uid=ltf6ocg7","description":""},{"label":"Setup and Track Time off","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/paid-time/set-track-time-payroll/L60CUPFNA_US_en_US","description":""},{"label":"Employee Bonuses","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/special-payroll/pay-employee-bonus/L1wtTcHJN_US_en_US?uid=ltf6p7vf","description":""},{"label":"Enter, Delete or Void Employee Paychecks","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/correct-payroll/delete-void-employee-paychecks/L0MFtsOun_US_en_US?uid=ltf6v9vl","description":""},{"label":"Fix Incorrect Pay Period dates on paychecks","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll-start-date/incorrect-pay-period-dates-quickbooks-desktop/L89lPyIOo_US_en_US","description":""},{"label":"When to send your direct deposit payroll","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll/view-change-direct-deposit-funding-time/L2QoK2Y75_US_en_US?uid=ltf6vtkf","description":""},{"label":"Correct Employees SSN","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/employee-management/correct-employee-social-security-number/L8ijfQIHN_US_en_US?uid=ltf6y8j3","description":""},{"label":"Set Up and Manage Direct Deposit for your Contractors","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/direct-deposits/set-manage-direct-deposit-contractors/L63N4nBv9_US_en_US","description":""},{"label":"Void or Cancel Contractor Payments","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll/void-cancel-contractor-payments/L6WwSaLUV_US_en_US?uid=ltf71b2j","description":""},{"label":"Pay a Contractor with Direct Deposit","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll/pay-contractor-direct-deposit/L2GTpwX8K_US_en_US","description":""},{"label":"Reset or Edit Prior Payroll","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0EWIo2Tb_US_en_US","description":""},{"label":"Workforce Chat","url":"","description":""},{"label":"https://public-consumer-chat.app.intuit.com/app/ccs/consumer","url":"https://public-consumer-chat.app.intuit.com/app/ccs/consumer","description":""}]},{"header":"Payroll Quarters","col":8,"row":10,"items":[{"label":"Quarter 1 - January 1 - March 31","url":"","description":""},{"label":"Quarter 2 - April 1 - June 30","url":"","description":""},{"label":"Quarter 3 - July 1 - September 30","url":"","description":""},{"label":"Quarter 4 - October 1 - December 31","url":"","description":""}]},{"header":"Filings/Forms","col":8,"row":15,"items":[{"label":"Fix W2 and W3","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/taxation/fix-incorrect-w-2/L9fQEYwEm_US_en_US?uid=ltf70oou","description":""},{"label":"Print your W2 and W3","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/print-file/print-w-2-forms/L76UaJUti_US_en_US?uid=ltf79vl3","description":""},{"label":"Populates 940","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L5yAoqdeL_US_en_US","description":""},{"label":"Understand Federal Forms and tax payments for 941, 944, 943 & 940","url":"https://quickbooks.intuit.com/learn-support/en-us/process-payroll/faq-form-944/00/370503","description":""},{"label":"Cancel or Delete payroll tax payments and forms","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/taxation/delete-tax-payment/L5S5wCURv_US_en_US?uid=ltf7cywi","description":""},{"label":"Set up or change your payroll tax filing or payment schedules","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/tax-payments/change-deposit-filing-schedule/L2CzQjUpj_US_en_US?uid=ltf7e709","description":""},{"label":"Tax Payment and Form Lead Times","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L8UrYli6F_US_en_US","description":""}]},{"header":"Account Setup/ Account Issues","col":1,"row":17,"items":[{"label":"Change Account Details for Payroll(Eservice Error)","url":"https://help-content-sso.app.intuit.com/content/sbg/en-US/L0fRJWZQi_US_en_US?_ga=2.10374453.1688925693.1707746930-150089910.1705678438","description":""},{"label":"https://iop.intuit.com/in/account/eSvcBmrEnterStage.jsp?durl=!9&_fid=TaskCoEServicesInterview","url":"","description":""},{"label":"Changing Primary Principal, Payroll Admin or other contact","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/primary-administrator/change-primary-principal-basic-standard-enhanced/L9jVKmnia_US_en_US?uid=ltf6921d","description":""},{"label":"Set up and manage work locations","url":"https://quickbooks.intuit.com/learn-support/en-us/service-items/set-up-and-assign-a-new-work-location/00/370812","description":""},{"label":"Clear Export Setup","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9E67Y5Zo_US_en_US","description":""},{"label":"Change your accounting preferences in QuickBooks Online Payroll","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll-processes/set-payroll-account-preferences/L9oiYu7wu_US_en_US","description":""},{"label":"Export Payroll Data","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting-and-bookkeeping/export-your-payroll-data-into-quickbooks/00/1037136","description":""}]}]},"Advanced":{"pattern":"multi_column_catalog","title":"Advanced","sections":[{"header":"Invoices","col":4,"row":3,"items":[{"label":"Batch Invoicing","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/create-and-send-multiple-invoices-in-quickbooks-online-advanced/00/248135","description":""},{"label":"Repeating Invoice","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/how-to-set-up-a-recurring-invoice-for-customers/00/186206","description":""},{"label":"Batch Editing","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/edit-multiple-invoices-at-the-same-time-in-quickbooks-online/00/474642","description":""},{"label":"Invoice Reminders","url":"https://quickbooks.intuit.com/learn-support/en-us/product-preferences/automate-and-send-invoice-reminders-in-quickbooks-online/00/186104","description":""},{"label":"Reclassify and Move Multiple Transactions","url":"https://quickbooks.intuit.com/learn-support/en-us/reclassify-transactions/reclassify-or-move-multiple-transactions-at-once/00/186258","description":""},{"label":"Create and Send Multiple Invoices","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/create-and-send-multiple-invoices-in-quickbooks-online-advanced/00/248135","description":""},{"label":"Create Multiple Bills and Expenses","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/pay-bills/create-multiple-bills-expenses-quickbooks-online/L9zalLLbI_US_en_US","description":""},{"label":"Set up Employee Expenses Management","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/expense-accounting/set-employee-expense-management-quickbooks-online/L24mgzaT4_US_en_US","description":""},{"label":"Compare Project Cost Estimates vs Actuals","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-projects/compare-project-cost-estimates-vs-actuals-online/L9oxsLKqN_US_en_US","description":""},{"label":"Refund or Issue Credits for Revenue Recognition","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/revenue/refund-issue-credits-revenue-recognition-online/L9d1F2vOm_US_en_US","description":""},{"label":"Set Up and Use Location Tracking","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/track-location/set-use-location-tracking/L2raFkEBC_US_en_US","description":""},{"label":"Add or Manage Fixed Assets","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/fixed-assets/add-manage-fixed-assets-quickbooks-online-advanced/L19788yU0_US_en_US","description":""},{"label":"How to Create Forecast","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/budget-forecast-reports/create-forecasts-quickbooks-online-advanced/L7ORJ2Lic_US_en_US","description":""}]},{"header":"Custom Fields","col":8,"row":3,"items":[{"label":"Creating Custom Fields","url":"https://quickbooks.intuit.com/learn-support/en-us/sales-orders/create-add-and-edit-custom-fields-in-quickbooks-online-advanced/00/278422","description":""},{"label":"Custom Fields In Reports","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/use-custom-fields-in-reports-in-quickbooks-online-advanced/00/656938","description":""}]},{"header":"Reports and Charts","col":11,"row":3,"items":[{"label":"Customize Reports","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/create-custom-reports-in-quickbooks-online-advanced/00/863704","description":""},{"label":"Charts","url":"https://quickbooks.intuit.com/learn-support/en-us/financial-reports/create-custom-charts-to-track-your-business-performance/00/502867","description":""},{"label":"Customize Reports and Create Summary Reports","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/how-to-create-a-custom-summary-report/00/369874","description":""},{"label":"Sort a Report","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/business-reports/sort-report-quickbooks-online-advanced-custom-view/L9DiA0jnX_US_en_US","description":""},{"label":"Filter a Report","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/business-reports/filter-report-quickbooks-online-advanced/L4QdNKyuZ_US_en_US","description":""},{"label":"Use Revenue Recognition","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/revenue/use-revenue-recognition-quickbooks-online-advance/L9iEOIb12_US_en_US","description":""},{"label":"Create charts to see your business performance","url":"https://quickbooks.intuit.com/learn-support/en-us/financial-reports/create-custom-charts-to-track-your-business-performance/00/502867","description":""},{"label":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-forms/use-custom-fields-vendors-expenses-quickbooks/L7PSoFvYL_US_en_US","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-forms/use-custom-fields-vendors-expenses-quickbooks/L7PSoFvYL_US_en_US","description":""}]},{"header":"Spreadsheet Sync","col":13,"row":3,"items":[{"label":"Get Started with Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting-and-bookkeeping/what-s-spreadsheet-sync/00/1091193","description":""},{"label":"Install and Open Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/login-and-password/how-to-install-and-open-spreadsheet-sync/00/1091188","description":""},{"label":"FAQ Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting-and-bookkeeping/spreadsheet-sync-faq/00/1091187","description":""},{"label":"Create and Edit Budgets In Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/create-edit-budgets-spreadsheet-sync-quickbooks/L2maqcfkI_US_en_US","description":""},{"label":"Create and Edit Reports in Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/create-edit-reports-spreadsheet-sync/L070F0dvn_US_en_US","description":""},{"label":"Import Data Using Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/invoicing/using-spreadsheet-sync-templates/L0uPf2fZs_US_en_US","description":""},{"label":"Working with Spreadsheet sync UI","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/accounting-bookkeeping/working-spreadsheet-sync-toolbar/L0S2E3ebf_US_en_US","description":""},{"label":"Refresh Data in Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/business-reports/refresh-data-spreadsheet-sync/L7y2YC9qD_US_en_US","description":""},{"label":"Create groups to run multi-company reporting","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-users/add-company-data-spreadsheet-sync/L7qIhR1Zi_US_en_US","description":""}]},{"header":"Only 12 active at the same time.","col":8,"row":8,"items":[{"label":"Custom Roles","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/access-permissions/add-manage-custom-roles-quickbooks-online-advanced/L8Ugph7xl_US_en_US","description":""}]},{"header":"available for custom user roles.","col":8,"row":11,"items":[{"label":"Using Custom Fields for vendors and Expenses","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-forms/use-custom-fields-vendors-expenses-quickbooks/L7PSoFvYL_US_en_US","description":""}]},{"header":"Automations","col":8,"row":14,"items":[{"label":"Using Wokflows to Automate","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/feature-preferences/use-workflows-quickbooks-online-advanced-send/L6uaB8H5G_US_en_US","description":""},{"label":"Connect to Hubspot","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting/connect-to-hubspot-and-get-deals-into-quickbooks-online-advanced/00/695156","description":""},{"label":"Workflow features for estimates and invoices","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/custom-templates/workflow-features-estimates-invoices-quickbooks/L7dMVT9Br_US_en_US","description":""},{"label":"How to Use Tasks","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-workflows/use-tasks-quickbooks-online-advanced/L9cK7wP3E_US_en_US","description":""},{"label":"How to use cost Estimates","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/job-estimates/use-cost-estimates-quickbooks-online-advanced/L8hCTs4CB_US_en_US","description":""},{"label":"SetUp Auto Payment Reminders","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/product-setup/set-auto-payment-reminders-quickbooks-online/L7HTMjgWm_US_en_US","description":""},{"label":"Set Up Recurring Statements","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customer-statements/set-recurring-statements-customers-quickbooks/L2oHSBdfj_US_en_US","description":""}]},{"header":"Employee Expenses","col":11,"row":14,"items":[{"label":"Set Up Employee Expenses","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/expense-accounting/set-employee-expense-management-quickbooks-online/L24mgzaT4_US_en_US","description":""}]},{"header":"Spreadsheet Sync Group","col":13,"row":15,"items":[{"label":"SBSEG Phn US QBOADV Spreadsheet Sync","url":"","description":""},{"label":"Only available  Mon - Fri","url":"","description":""},{"label":"6 AM - 6 PM PT","url":"","description":""},{"label":"If after premium business hours, collect all","url":"","description":""},{"label":"information and change the case owner to","url":"","description":""}]},{"header":"Backup and Restore","col":4,"row":17,"items":[{"label":"BackUp and Restore","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/back-data/back-restore-quickbooks-online-advanced-company/L2Ydvhq3L_US_en_US","description":""},{"label":"Make a Copy of Your Adv Company","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/back-data/make-copy-quickbooks-online-advanced-company/L2UUaPvDd_US_en_US","description":""}]}]},"Accountant Group":{"pattern":"multi_column_catalog","title":"Priority Circle","sections":[{"header":"Priority Circle Benefits","col":2,"row":2,"items":[{"label":"Support: Premium support is your direct line to top-tier QuickBooks support agents. When you call, you will be connected with these agents\u201424/7.","url":"","description":""},{"label":"Training: Includes $3,000 worth of training courses for new and advanced users.","url":"","description":""},{"label":"Charges: Available to customers with a paid subscription to QuickBooks Enterprise or QuickBooks Online Advanced.","url":"","description":""},{"label":"Users: Up to 25 users","url":"","description":""}]},{"header":"Advanced Features","col":2,"row":11,"items":[{"label":"Storage: QBO Advanced is in the cloud so you don't need to download it.","url":"","description":""},{"label":"Invoicing: Able to create multiple invoices at a time.","url":"","description":""},{"label":"Performance Center: Enables customers to create custom dashboards. Add your own charts & customize.","url":"","description":""},{"label":"Users: 25 additional users","url":"","description":""},{"label":"Custom Fields: Up to 10 custom fields with value added class and location lists.","url":"","description":""},{"label":"COA: Unlimited chart of accounts.","url":"","description":""},{"label":"Invoicing: Accelerated invoicing with all simple start, essentials and plus features.","url":"","description":""},{"label":"Spreadsheet Sync: **Advanced experts do not directly resolve spreadsheet sync contacts, a dedicated team handles these.**","url":"","description":""},{"label":"Employee Expenses: Set up employees to submit expenses and notifications when an employee posts an expense.","url":"","description":""}]},{"header":"Invoices","col":14,"row":19,"items":[{"label":"Batch Invoicing","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/create-and-send-multiple-invoices-in-quickbooks-online-advanced/00/248135","description":""},{"label":"Repeating Invoice","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/how-to-set-up-a-recurring-invoice-for-customers/00/186206","description":""},{"label":"Batch Editing","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-invoices/edit-multiple-invoices-at-the-same-time-in-quickbooks-online/00/474642","description":""},{"label":"Invoice Reminders","url":"https://quickbooks.intuit.com/learn-support/en-us/product-preferences/automate-and-send-invoice-reminders-in-quickbooks-online/00/186104","description":""},{"label":"Reclassify and Move Multiple Transactions","url":"https://quickbooks.intuit.com/learn-support/en-us/reclassify-transactions/reclassify-or-move-multiple-transactions-at-once/00/186258","description":""}]},{"header":"Reports and Charts","col":15,"row":19,"items":[{"label":"Customize Reports","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/create-custom-reports-in-quickbooks-online-advanced/00/863704","description":""},{"label":"Charts","url":"https://quickbooks.intuit.com/learn-support/en-us/financial-reports/create-custom-charts-to-track-your-business-performance/00/502867","description":""},{"label":"Customize Reports and Create Summary Reports","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/how-to-create-a-custom-summary-report/00/369874","description":""}]},{"header":"Custom Fields","col":14,"row":26,"items":[{"label":"Creating Custom Fields","url":"https://quickbooks.intuit.com/learn-support/en-us/sales-orders/create-add-and-edit-custom-fields-in-quickbooks-online-advanced/00/278422","description":""},{"label":"Custom Fields In Reports","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/use-custom-fields-in-reports-in-quickbooks-online-advanced/00/656938","description":""},{"label":"Note : Max of 3 custom fields","url":"","description":""},{"label":"that can print on form.","url":"","description":""},{"label":"Only 12 active at the same time.","url":"","description":""},{"label":"Custom Roles","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/access-permissions/add-manage-custom-roles-quickbooks-online-advanced/L8Ugph7xl_US_en_US","description":""},{"label":"NOTE : Not all reports are","url":"","description":""},{"label":"available for custom user roles.","url":"","description":""}]},{"header":"Automations","col":15,"row":26,"items":[{"label":"Using Wokflows to Automate","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/feature-preferences/use-workflows-quickbooks-online-advanced-send/L6uaB8H5G_US_en_US","description":""},{"label":"Connect to Hubspot","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting/connect-to-hubspot-and-get-deals-into-quickbooks-online-advanced/00/695156","description":""}]},{"header":"Advanced Desktop App","col":2,"row":29,"items":[{"label":"Stay Signed In: The QuickBooks Online Advanced desktop app lets you sign in once a day and stay signed in for extended amounts of time.","url":"","description":""},{"label":"Navigational View Map: Once migrating your QB desktop account to QBO advanced, you have the option to use the navigation map.","url":"","description":""},{"label":"Multiple Companies: In the QBO Advanced desktop app, you can access multiple companies and switch between them.","url":"","description":""}]},{"header":"Payroll Premium Benefits","col":2,"row":35,"items":[{"label":"Filings: Year to end filings included","url":"","description":""},{"label":"Auto Filings: Auto filings for federal, state and local taxes.","url":"","description":""},{"label":"Product Support: 24/7 expert product support","url":"","description":""},{"label":"Direct Deposit: Same day direct deposit","url":"","description":""},{"label":"Reporting: Payroll reporting","url":"","description":""},{"label":"Payroll Runs: Unlimited payroll runs","url":"","description":""},{"label":"Time Tracking: Premium time tracking","url":"","description":""},{"label":"Setup: Expert setup review","url":"","description":""}]},{"header":"Backup and Restore","col":14,"row":36,"items":[{"label":"BackUp and Restore","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/back-data/back-restore-quickbooks-online-advanced-company/L2Ydvhq3L_US_en_US","description":""},{"label":"Make a Copy of Your Adv Company","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/back-data/make-copy-quickbooks-online-advanced-company/L2UUaPvDd_US_en_US","description":""}]},{"header":"Spreadsheet Sync","col":15,"row":36,"items":[{"label":"Get Started with Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting-and-bookkeeping/what-s-spreadsheet-sync/00/1091193","description":""},{"label":"Install and Open Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/login-and-password/how-to-install-and-open-spreadsheet-sync/00/1091188","description":""},{"label":"FAQ Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting-and-bookkeeping/spreadsheet-sync-faq/00/1091187","description":""},{"label":"Create and Edit Budgets In Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/create-edit-budgets-spreadsheet-sync-quickbooks/L2maqcfkI_US_en_US","description":""},{"label":"Create and Edit Reports in Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/create-edit-reports-spreadsheet-sync/L070F0dvn_US_en_US","description":""},{"label":"Import Data Using Spreadsheet Sync","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/invoicing/using-spreadsheet-sync-templates/L0uPf2fZs_US_en_US","description":""}]},{"header":"Payroll Premium Informaiton:","col":2,"row":45,"items":[{"label":"Multi state is supported in premium payroll however, there is an add on fee associated with this service.","url":"","description":""},{"label":"Premium customers CAN run payroll while an expert payroll review is ongoing.","url":"","description":""}]},{"header":"Downgrading Process (To be Followed)","col":2,"row":51,"items":[{"label":"Explain the price changes","url":"","description":""},{"label":"Explain that discounts will be lost and may not be offered if the customer decides to add the service back at a later date.","url":"","description":""},{"label":"Explain what features the customer will lose.","url":"","description":""},{"label":"Review the additional check area (if applicable)","url":"","description":""}]},{"header":"Features only offered to payroll elite customers","col":2,"row":57,"items":[{"label":"Auto Filings: Automated payroll tax filings for federal, state and local taxes","url":"","description":""},{"label":"Product Support: Elite product support","url":"","description":""},{"label":"Onboarding: Elite onboarding","url":"","description":""},{"label":"Direct Deposit: Same day","url":"","description":""},{"label":"**HR Advisor: Personal HR advisor","url":"","description":""},{"label":"Protection: Tax penalty protection","url":"","description":""}]},{"header":"Elite Onboarding","col":10,"row":58,"items":[{"label":"Experts will take care if their payroll setup","url":"","description":""},{"label":"24/7 support via phone with US based specialist available 6AM-6PM PT Monday-Friday & 6AM-3PM PT on Saturdays.","url":"","description":""},{"label":"If an employee is switching from another provider, we\u2019ll ensure data is transferred correctly.","url":"","description":""}]},{"header":"Elite Product Support","col":2,"row":65,"items":[{"label":"Step by step help, troubleshooting assistance, tips and resources.","url":"","description":""},{"label":"Call back support means you'll get answers on your time -- no waiting on hold.","url":"","description":""}]},{"header":"Elite Time Tracking","col":10,"row":65,"items":[{"label":"Track project hours and labor expenses in real time to eliminate surprises.","url":"","description":""},{"label":"Geofencing alerts workers to clock in or out when entering or leaving the job site.","url":"","description":""},{"label":"An activity feed lets team members add and view notes, photos and project updates from anywhere.","url":"","description":""}]},{"header":"Personal HR Advisor","col":2,"row":69,"items":[{"label":"Employers can consult with certified HR advisors by phone or online","url":"","description":""},{"label":"Receive professional guidance on critical HR issues","url":"","description":""},{"label":"Custom handbooks and policies created for customers","url":"","description":""}]},{"header":"Tax Penalty Guarantee","col":10,"row":70,"items":[{"label":"We will pay all penalty fees and interest if the employer receives an IRS penalty.","url":"","description":""},{"label":"Our tax resolution team will work on your behalf to help resolve any payroll tax or filing issues with the IRS.","url":"","description":""}]},{"header":"What's included in expert setup?","col":2,"row":75,"items":[{"label":"A QuickBooks payroll expert will complete the customers setup, once they've provided all necessary information.","url":"","description":""},{"label":"The customers payroll setup will be reviewed to make sure everything is correct.","url":"","description":""}]},{"header":"Additional Information:","col":2,"row":79,"items":[{"label":"Elite onboarding entails us fully onboarding the customer onto our payroll service, only offered to elite customers.","url":"","description":""}]},{"header":"When should you support for a third party app?","col":2,"row":89,"items":[{"label":"Do not decline to help the customer when they mention the issue is related to an app, even if it's a 3rd party.","url":"","description":""},{"label":"**We need to confirm which app they are having issues with, what the issue is, and what caused the issue before we determine who owns the resolution.","url":"","description":""},{"label":"Don't assume the 3rd party company owns the issue just because QBO is the receiving software. There are often technical nuanced on the receiving end and we can resolve the customer.","url":"","description":""},{"label":"Don't mistake Intuit-built apps for 3rd party apps. Connect to Square, Connect to Paypal, eBay connector, and many more apps sound like they are built by a 3rd party but they are built and supported by Intuit.","url":"","description":""}]},{"header":"Features of Batch Transactions","col":2,"row":96,"items":[{"label":"Enter multiple invoices at the same time such as sales receipts, invoices, checks, expenses, bills or bank deposits all at one time.","url":"","description":""},{"label":"Duplicate the same invoice - If your customer needs to record the same invoice for all of their employees or create the same invoice for several customers, they can duplicate the invoice form.","url":"","description":""},{"label":"Customize what you see - Customers can easily add, delete, or move column headings to customize the information displayed.","url":"","description":""},{"label":"Edit multiple invoices at the same time - If customers need to make edits to several invoices, they can edit up to 150 invoices at once. This speeds up the workflow and saves time on data entry.","url":"","description":""}]}]},"Elite|Premium ":{"pattern":"multi_column_catalog","title":"Time and Payroll Links","sections":[{"header":"Time and Payroll Links","col":14,"row":2,"items":[{"label":"Use QuickBooks Time with QuickBooks Online Payroll SKUs","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L32xdwODI_US_en_US","description":""},{"label":"Approve time for QuickBooks Time and export to QuickBooks Online","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9ifKTlmq_US_en_US","description":""},{"label":"Compare QuickBooks Desktop and Online Payroll products","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0RzKGrsX_US_en_US","description":""},{"label":"Use Human Resources Services in QuickBooks Online Payroll Premium and Elite","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting/human-resources-services-in-quickbooks-online-payroll-premium/00/583468","description":""}]},{"header":"Payroll Premium","col":2,"row":3,"items":[{"label":"Al benefits of Core PL","url":"","description":""},{"label":"Same Day Direct Deposit","url":"","description":""},{"label":"Workers Comp Administration","url":"","description":""},{"label":"HR Support Center","url":"","description":""},{"label":"Expert Review","url":"","description":""},{"label":"Track Time on the Go","url":"","description":""}]},{"header":"Payroll Elite","col":7,"row":3,"items":[{"label":"All benefits of Core & Premium","url":"","description":""},{"label":"Expert Setup","url":"","description":""},{"label":"Track time & Projects on the Go","url":"","description":""},{"label":"24/7 Expert Product Support","url":"","description":""},{"label":"Tax Penalty Protection","url":"","description":""},{"label":"Elite Onboarding","url":"","description":""},{"label":"Personal HR Advisor","url":"","description":""}]},{"header":"Setting Up Account","col":14,"row":8,"items":[{"label":"Downgrade to QuickBooks Time Premium","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-intuit-account/downgrading-to-quickbooks-time-premium/00/423792","description":""},{"label":"Use QuickBooks Time with QuickBooks Online Payroll SKUs","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L32xdwODI_US_en_US","description":""},{"label":"QuickBooks Time onboarding","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0RiXwTfR_US_en_US","description":""},{"label":"Get started with QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-users/administrator-s-getting-started-guide/00/380811","description":""},{"label":"QuickBooks Time setup workflow","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9rZOTBTv_US_en_US","description":""},{"label":"Accessibility features in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/product-preferences/accessibility-in-quickbooks-time/00/889597","description":""},{"label":"How to manage company settings in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/business-profile/how-to-manage-company-settings-in-quickbooks-time/00/1021201","description":""}]},{"header":"Employees","col":20,"row":8,"items":[{"label":"Use the Who's Working window for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-employees/how-to-use-the-who-s-working-window/00/380880","description":""},{"label":"Use QuickBooks Time GPS Tracking as admin or manager","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-employees/use-gps-tracking-as-admin-or-manager/00/380698","description":""},{"label":"Set up timesheet rounding in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/product-preferences/set-up-timesheet-rounding/00/381075","description":""},{"label":"Set up and manage breaks for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/create-and-manage-breaks/00/380650","description":""},{"label":"Track and submit your time in QuickBooks Time web","url":"https://quickbooks.intuit.com/learn-support/en-us/track-worker-time/clock-in-switch-jobs-or-customers-and-clock-out-computer/00/381073","description":""},{"label":"Approve time for QuickBooks Time and export to QuickBooks Online","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9ifKTlmq_US_en_US","description":""},{"label":"Add and view timesheet signatures in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/add-and-view-timesheet-signatures/00/380638","description":""},{"label":"Add and view photos on timesheets in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/track-worker-time/add-and-view-photos-on-timesheets/00/380809","description":""},{"label":"Approve, unapprove, and reject timesheets for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-timesheets/approve-unapprove-and-reject-timesheets/00/380655","description":""},{"label":"Manage schedule notifications and permissions for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/set-schedule-reminders-and-notifications/00/380721","description":""},{"label":"Manage shifts for QuickBooks Time web","url":"https://quickbooks.intuit.com/learn-support/en-us/worker-schedules/add-assign-and-publish-jobs-or-shifts-computer/00/380700","description":""},{"label":"View your schedule and clock in to a shift in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/view-your-schedule-and-clock-in-to-a-shift/00/380556","description":""},{"label":"Compare hours scheduled to hours worked in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-ca/help-article/feature-preferences/compare-hours-scheduled-hours-worked-quickbooks/L2QGjgyLJ_CA_en_CA","description":""},{"label":"Set up and configure time off accruals in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/paid-time-off/set-up-time-off-codes-and-accruals/00/380595","description":""},{"label":"Set up and Manage Time Off in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/paid-time/set-manage-time-quickbooks-time/L3XVOnHGy_US_en_US","description":""},{"label":"Set up and manage breaks for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/create-and-manage-breaks/00/380650","description":""}]},{"header":"Quickbooks Time Premium","col":2,"row":10,"items":[{"label":"Mobile app with GPS","url":"","description":""},{"label":"Streamlined payroll and invoicing","url":"","description":""},{"label":"Job and shift scheduling","url":"","description":""},{"label":"Customized reports","url":"","description":""},{"label":"See who's working","url":"","description":""},{"label":"Time off management","url":"","description":""},{"label":"Alerts and notifications","url":"","description":""},{"label":"Photo attachment","url":"","description":""},{"label":"Time kiosk","url":"","description":""},{"label":"Unlimited customer support","url":"","description":""}]},{"header":"Quickbooks Time Elite","col":7,"row":11,"items":[{"label":"Mobile app with GPS","url":"","description":""},{"label":"Streamlined payroll and invoicing","url":"","description":""},{"label":"Job and shift scheduling","url":"","description":""},{"label":"Customized reports","url":"","description":""},{"label":"See who's working","url":"","description":""},{"label":"Time off management","url":"","description":""},{"label":"Alerts and notifications","url":"","description":""},{"label":"Photo attachment","url":"","description":""},{"label":"Time kiosk","url":"","description":""},{"label":"Unlimited customer support","url":"","description":""}]},{"header":"Setting Up Team","col":14,"row":17,"items":[{"label":"Get started as a manager in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/manager-s-getting-started-guide/00/380750","description":""},{"label":"Add and manage team members for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-users/add-and-manage-team-members/00/408098","description":""},{"label":"Team member settings and permissions in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-users/team-member-permissions/00/380831","description":""},{"label":"Add and manage groups and managers in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-users/add-and-manage-groups-crews-and-their-managers/00/380719","description":""}]},{"header":"Customers","col":14,"row":22,"items":[{"label":"Set up and use projects for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/set-up-and-use-projects/00/381071","description":""},{"label":"Set up and manage custom fields in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/customize-forms/set-up-and-manage-custom-fields/00/380706","description":""},{"label":"Create and manage jobs or customers for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/configure-products/create-and-manage-jobs-or-customers/00/380793","description":""}]},{"header":"Overtime","col":20,"row":25,"items":[{"label":"US Federal Overtime","url":"https://www.dol.gov/agencies/whd/overtime","description":""},{"label":"US Overtime Law Summary by State","url":"https://www.dol.gov/agencies/whd/minimum-wage/state","description":""},{"label":"**There must always be a weekly rule for","url":"","description":""},{"label":"overtime before there can be any daily overtime rules**","url":"","description":""},{"label":"Customize overtime calculations in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/configure-and-change-advanced-overtime-settings/00/380808","description":""},{"label":"Set up overtime tracking","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/set-up-overtime-tracking/00/380630","description":""}]},{"header":"Reports","col":14,"row":26,"items":[{"label":"Learn about QuickBooks Time reports","url":"https://quickbooks.intuit.com/learn-support/en-us/list-reports/quickbooks-time-reports/00/380938","description":""},{"label":"Run and use the payroll report for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/run-and-use-the-payroll-report/00/380781","description":""},{"label":"Run the itemized total time report for QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/run-a-project-report/00/380752","description":""},{"label":"Run a job costing by team member report in QuickBooks Time","url":"https://quickbooks.intuit.com/learn-support/en-us/jobs/run-a-team-member-job-costing-report/00/380813","description":""}]},{"header":"Time Kiosk","col":20,"row":32,"items":[{"label":"Set up QuickBooks Time Kiosk","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/get-started-with-time-clock-kiosk/00/380741","description":""},{"label":"Track time on the QuickBooks Time Kiosk","url":"https://quickbooks.intuit.com/learn-support/en-us/track-worker-time/clock-in-and-out-via-time-clock-kiosk/00/380724","description":""},{"label":"Use QuickBooks Time Kiosk photo capture","url":"https://quickbooks.intuit.com/learn-support/en-us/feature-preferences/turn-on-time-clock-kiosk-photo-capture/00/381585","description":""}]}]},"ProAdvisor|Accountant":{"pattern":"multi_column_catalog","title":"Pro Advisor and Accountant","sections":[{"header":"Pro Advisor","col":1,"row":2,"items":[{"label":"Benefits, Tiers and Points","url":"https://community.intuit.com/articles/3141838-learn-about-proadvisor-benefits-tiers-and-points","description":""},{"label":"Quickbooks ProAdvisor program and Brand Use guide","url":"https://quickbooks.intuit.com/learn-support/en-us/proadvisor-program/quickbooks-proadvisor-program-member-guide-for-brand-use/00/370063","description":""},{"label":"Create and publish your ProAdvisor profile in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/pap-website/publish-and-manage-your-find-a-proadvisor-profile/00/370083","description":""},{"label":"Sign up for ProAdvisor and QuickBooks certification courses","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-certification/access-proadvisor-certification-courses/00/186163","description":""},{"label":"Frequently Asked Questions about ProAdvisor training and certification","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-certification/frequently-asked-questions-about-proadvisor-certification/00/369230","description":""},{"label":"Access ProAdvisor Desktop training","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L4Xc3YB7z_US_en_US","description":""},{"label":"Earn your QuickBooks Desktop certification","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-certification/earn-your-quickbooks-desktop-2018-certification/00/369612","description":""},{"label":"ProAdvisor certification course and exam updates","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-certification/proadvisor-certification-course-and-exam-updates/00/369191","description":""},{"label":"Fix common issues with certification exams in QuickBooks Online Accountant","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L6G9nTAFx_US_en_US","description":""},{"label":"Learn about ProAdvisor profile and Find-a-ProAdvisor guidelines","url":"https://quickbooks.intuit.com/learn-support/en-us/proadvisor-program/confirm-your-proadvisor-profile/00/370059","description":""},{"label":"What to do if a ProAdvisor profile isn't showing on the Find-a-ProAdvisor website","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L2LO3gA5g_US_en_US","description":""},{"label":"Use Volume to view ProAdvisor certification status","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L9isXk8p2_US_en_US","description":""},{"label":"Special promotion exceptions","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L7jHSweS9_US_en_US","description":""}]},{"header":"Accountant","col":15,"row":2,"items":[{"label":"Use accountant tools and features in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/data-utilities/about-accountant-tools/00/369908","description":""},{"label":"Undo a client\u2019s reconciliation in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/undo-reconciliation/undo-your-client-s-reconciliations-with-quickbooks-online/00/370057","description":""},{"label":"Set a default date range in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/run-reports/set-a-default-date-range/00/186326","description":""},{"label":"Write off invoices in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/data-utilities/use-write-off-invoices/00/369919","description":""},{"label":"Use Prep for taxes to map and export your clients\u2019 tax info","url":"https://quickbooks.intuit.com/learn-support/en-us/book-to-tax/prepare-and-export-your-clients-accounts-with-prep-for-taxes/00/369487","description":""},{"label":"Start new tax returns for clients from QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/book-to-tax/how-do-i-access-a-proconnect-tax-online-pto-return-in-quickbooks/00/369337","description":""},{"label":"Multi-company discount in QuickBooks Online Accountant","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L2S8nwZ4u_US_en_US","description":""},{"label":"Reclassify or move multiple transactions in QuickBooks Online Accountant and Advanced","url":"https://quickbooks.intuit.com/learn-support/en-us/reclassify-transactions/reclassify-or-move-multiple-transactions-at-once/00/186258","description":""},{"label":"Restrictions on reclassifying transactions :","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""}]},{"header":"Transferring PA to the client from the Accountant Side","col":30,"row":2,"items":[{"label":"1. Sign in to QuickBooks Online Accountant as the current primary admin","url":"","description":""},{"label":"2. Select Team","url":"","description":""},{"label":"3. Find the client's user","url":"","description":""},{"label":"4. Select the three dot menu in the Action column","url":"","description":""},{"label":"5. Select Change primary admin","url":"","description":""},{"label":"6. Select Change primary admin again to confirm","url":"","description":""},{"label":"7. The client will receive an email with a link to accept the primary admin role","url":"","description":""}]},{"header":"Clients List Troubleshooting","col":1,"row":16,"items":[{"label":"Add clients to QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/payroll-subscriptions/add-clients-quickbooks-online-accountant/L6OvGOw2L_US_en_US","description":""},{"label":"What to do if you can't accept client invites in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/invite-users/why-can-t-i-accept-an-accountant-invitation/00/370082","description":""},{"label":"Find missing client companies in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-manage-clients/how-to-find-a-company-that-is-missing-from-the-quickbooks-online/00/369479","description":""},{"label":"Manage clients in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-features/manage-your-clients-with-the-client-dashboard/00/369176","description":""},{"label":"Manage lead accountants in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/invite-users/assign-a-lead-accountant/00/369255","description":""},{"label":"Add accountant users in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/manage-intuit-account/managing-accountant-users-in-quickbooks-online/00/325725","description":""},{"label":"Upgrade or downgrade your client's QuickBooks Online subscription","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting/upgrade-or-downgrade-a-client-s-quickbooks-online-subscription/00/908987","description":""},{"label":"Add and manage your accounting team in QuickBooks Online Accountant","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-manage-teams/manage-users-in-quickbooks-online-accountant/00/369195","description":""}]},{"header":"Billing Troubleshooting","col":13,"row":17,"items":[{"label":"Agent Switch Offer Process","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L13KVxHw2_US_en_US","description":""},{"label":"Everything you need to know about ProAdvisor Preferred Pricing","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-billing/what-is-wholesale-billing/00/369718","description":""},{"label":"Learn about ProAdvisor discounts and pricing","url":"https://quickbooks.intuit.com/learn-support/en-us/accountant-billing/proadvisor-discounts-and-special-pricing/00/369253","description":""},{"label":"Transfer clients to your ProAdvisor Preferred Pricing program in QuickBooks Online","url":"https://quickbooks.intuit.com/learn-support/en-us/accounting/transfer-your-quickbooks-online-billing-to-your-accountant/00/555964","description":""},{"label":"Admin Tool Overview for QuickBooks Online and Self-Employed","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L60JBD5Fx_US_en_US","description":""},{"label":"Learn about Firm Based Identity (FBI) in QuickBooks Online Accountant","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L6ItaUTZu_US_en_US","description":""},{"label":"Manage your ProAdvisor Preferred Pricing plan and ProAdvisor discount clients","url":"https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-client/manage-wholesale-discount-plan-wholesale-discount/L13MoEwj6_US_en_US","description":""},{"label":"If the option to perform a Switch Offer is missing, we can submit a request to the US QBOA Wholesale Promo Quickbase to apply the discount on the backend.","url":"","description":""},{"label":"Troubleshooting guide for oBill","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L0ELk2vd4_US_en_US","description":""},{"label":"Understand Intuit charges on your credit card or bank statement","url":"https://quickbooks.intuit.com/learn-support/en-us/order-status/what-is-this-intuit-charge-on-my-credit-card-statement/00/187848","description":""},{"label":"Enter discounts and refunds in the Online DBill tool","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L6cPnqDjR_US_en_US","description":""},{"label":"Unresponsive buttons and errors in QuickBooks Online","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L3uo4NGPU_US_en_US","description":""},{"label":"Find Intuit charges using PaymenTech and the PSON","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L6w7whdO7_US_en_US","description":""},{"label":"Identify a ProAdvisor Preferred Pricing program company","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L90Q4vl6l_US_en_US","description":""},{"label":"DBILL","url":"https://prod-billingcare.brm-prod.a.intuit.com/bc/index.html","description":""},{"label":"Billing WIKI","url":"https://wiki.intuit.com/pages/viewpage.action?spaceKey=qbobilling&title=Billing+Error+Code","description":""},{"label":"To request a special promotion exception in ProAdvisor, consider the following:","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"A request for exception","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""},{"label":"False","url":"","description":""}]},{"header":"Checking Application Status In SF","col":1,"row":28,"items":[{"label":"1. Search for FIRM COID","url":"","description":""},{"label":"2. Select Account Name","url":"","description":""},{"label":"3. Select Revenue Share Status","url":"","description":""}]},{"header":"How to view and manage invite statuses","col":5,"row":28,"items":[{"label":"1. Open the QB Admin Tool or CSR Oii","url":"","description":""},{"label":"2. Search Co ID","url":"","description":""},{"label":"3. Select Access > Users (QB Admin Tool) or Manage Users (CSR Oii)","url":"","description":""}]},{"header":"Revenue Share Payout Status","col":1,"row":32,"items":[{"label":"1. Search QBOA Realm ID in SF","url":"","description":""},{"label":"2. Select on Account Name","url":"","description":""},{"label":"3. Select Account Revenue Share Tab","url":"","description":""},{"label":"4. Select Show Payment Status","url":"","description":""},{"label":"5. Select Search Category of Realm ID","url":"","description":""},{"label":"6. Enter Realm ID","url":"","description":""},{"label":"7. Select Search","url":"","description":""}]},{"header":"Confirm the Offer Code is Correct","col":5,"row":32,"items":[{"label":"1. Search for the Client COID in SF","url":"","description":""},{"label":"2. Select on the Account Name","url":"","description":""},{"label":"3. Select on the Name of the Asset in the Product Offering table","url":"","description":""},{"label":"4. Select the Hyperlink of the Current Product","url":"","description":""},{"label":"5. Reference the description in the current product section and it should say Revshare Offer","url":"","description":""}]},{"header":"Removing a client from ProAdvisor Preferred Pricing process","col":1,"row":50,"items":[{"label":"Locate the Migrate-Out date","url":"","description":""}]},{"header":"Determining Eligibilty for Discount","col":13,"row":50,"items":[{"label":"The client QBO must be created directly into the PAPP program through the QBOA Firm.","url":"","description":""},{"label":"The client QBO was previously on a PAPP promo with their previous QBOA Firm.","url":"","description":""}]},{"header":"What if the customer doesn\u2019t have the prior Firm\u2019s Realm ID?","col":1,"row":60,"items":[{"label":"1. Log in to Oracle using your SSO Credentials.","url":"","description":""},{"label":"2. Select on the Search button.","url":"","description":""},{"label":"3. Use the Client Realm ID to search via Account Number.","url":"","description":""},{"label":"4. Double-click on the account number or select Open to search.","url":"","description":""},{"label":"5. Toggle to the Bills tab.","url":"","description":""},{"label":"6. Switch Bills","url":"","description":""},{"label":"7. Look for any Bill Units that are labeled Inactive_Non_Paying.","url":"","description":""}]},{"header":"Locate the Migrate-In date","col":13,"row":60,"items":[{"label":"1. Grab the Realm ID of the current QBOA Firm.","url":"","description":""},{"label":"2. Search the Realm ID in Salesforce and select the account.","url":"","description":""},{"label":"3. On the Product Offerings page, scroll down to Other and select QuickBooks Online Accountant Standard.","url":"","description":""},{"label":"4. Select the Billing History tab.","url":"","description":""},{"label":"5. Select each bill until you find the client in question. Use Ctrl+F to run a search for the Client Realm ID.","url":"","description":""},{"label":"6. The line item for that client should show a Migrate In date as a description for a prorated adjustment/refund.","url":"","description":""},{"label":"Identify a ProAdvisor Preferred Pricing program company","url":"https://help-content-sso.app.intuit.com/content/sbg/en-us/L90Q4vl6l_US_en_US","description":""}]},{"header":"Applying the 30% Discount","col":1,"row":75,"items":[{"label":"1. Access the US QBOA Bundle Promo Quickbase","url":"","description":""},{"label":"2. Select New Request","url":"","description":""},{"label":"3. Fill out the Required Fields. For the Program Name field, use Exception 3 or 4 for 30% or 50% promos or if the switch offer tool is down.","url":"","description":""}]}]},"Enterprise Suite":{"pattern":"mixed_text","title":"Intuit Enterprise Suite","sections":[{"header":"Intuit Enterprise Suite","items":[{"text":"Fast Growing","url":"","bold":false},{"text":"Earn High Revenue (over 5 million annually)","url":"","bold":false},{"text":"Have multiple Companies or Subscriptions with Intuit that is have a multi-entity structure","url":"","bold":false}]},{"header":"Main Features ","items":[{"text":"Role-based access control for enhanced security; users are assigned custom access for efficient delegation of tasks.","url":"","bold":false},{"text":"Multi-entity accounting that enables finance teams to efficiently manage the accounting needs of their multi-entity structure within a single platform.","url":"","bold":false},{"text":"Additional Classes and new functionality to track different aspects or dimensions of their business.","url":"","bold":false},{"text":"Financial planning and analysis tools to predict future finances, create budgets, track performance against a budget, and forecast net income.","url":"","bold":false},{"text":"Added project financial functionality to closely manage the company's cost, revenue, and profit to deliver projects on time and within budget.","url":"","bold":false}]}]}};
+const STORAGE_KEY = 'qb_lookup_v2';
+
+/* ── storage ── */
+let edits = {};
+try { edits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) {}
+
+function getEdit(pos, field) { return edits[pos]?.[field] || ''; }
+function setEdit(pos, field, val) {
+  edits[pos] = edits[pos] || {};
+  edits[pos][field] = val;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(edits));
+  updateProgress();
+}
+
+/* ── state ── */
+let editMode = false;
+let activeSheet = 'Call Flow';
+let searchQ = '';
+
+/* ── elements ── */
+const q = document.getElementById('q');
+const tabsEl = document.getElementById('tabs');
+const contentEl = document.getElementById('content');
+const editBtn = document.getElementById('edit-btn');
+const editBanner = document.getElementById('edit-banner');
+const exportBtn = document.getElementById('export-btn');
+const importFile = document.getElementById('import-file');
+const fstat = document.getElementById('fstat');
+const progBar = document.getElementById('prog-bar');
+const progTxt = document.getElementById('prog-txt');
+const toast = document.getElementById('toast');
+
+/* ── helpers ── */
+const esc = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const tok = s => s.toLowerCase().trim().split(/\s+/).filter(Boolean);
+
+function hi(text, terms) {
+  if (!text || !terms.length) return esc(text||'');
+  let out = esc(text);
+  for (const t of terms) {
+    const re = new RegExp('('+t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+    out = out.replace(re,'<mark>$1</mark>');
+  }
+  return out;
+}
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1200);
+}
+
+function copy(text) {
+  navigator.clipboard.writeText(text).then(() => showToast('Copied: ' + text.slice(0,40)));
+}
+
+function linkBtn(url, label='Open ↗') {
+  if (!url) return '';
+  return `<a class="link-btn" href="${esc(url)}" target="_blank" rel="noopener">${label}</a>`;
+}
+
+function copyBtn(text, label) {
+  const disp = label || text.slice(0,30);
+  return `<button class="copy-btn" data-copy="${esc(text)}">📋 ${esc(disp)}</button>`;
+}
+
+function phoneDetect(text) {
+  const m = text.match(/\b(\d{3}[-.\s]\d{3}[-.\s]\d{4}|\b\d{5,9}\b)/);
+  return m ? m[1] : null;
+}
+
+function scriptField(pos) {
+  const val = getEdit(pos, 'script_blurb');
+  if (!editMode) {
+    return val ? `<div class="script-blurb">${esc(val)}</div>` : '';
+  }
+  return `<textarea class="editable" data-pos="${esc(pos)}" data-field="script_blurb" rows="2"
+    placeholder="Your call script for this topic…">${esc(val)}</textarea>`;
+}
+
+/* ── progress meter ── */
+function countScriptable() {
+  let total = 0, scripted = 0;
+  for (const [sheet, d] of Object.entries(DATA)) {
+    const entries = flatEntries(d);
+    total += entries.length;
+    for (const e of entries) {
+      if (getEdit(e.pos, 'script_blurb')) scripted++;
+    }
+  }
+  return {total, scripted};
+}
+
+function updateProgress() {
+  const {total, scripted} = countScriptable();
+  const pct = total ? Math.round(scripted/total*100) : 0;
+  progBar.style.width = pct + '%';
+  progTxt.textContent = `${scripted}/${total} scripted`;
+}
+
+/* ── flat entry extractor (for search + progress) ── */
+function flatEntries(d) {
+  const items = [];
+  const p = d.pattern;
+  if (p === 'nav_grid') {
+    d.cards.forEach((c,i) => items.push({
+      sheet: d.title, section:'', label:c.label, desc:c.description, url:'',
+      pos:`home::card::${i}`, target_sheet:c.target_sheet,
+    }));
+  } else if (p === 'multi_column_catalog') {
+    d.sections.forEach((s,si) => s.items.forEach((it,ii) => items.push({
+      sheet:d.title, section:s.header, label:it.label, desc:'', url:it.url,
+      pos:`${d.title}::${si}::${ii}`,
+    })));
+  } else if (p === 'label_desc_link') {
+    d.entries.forEach((e,i) => items.push({
+      sheet:d.title, section:'', label:e.label, desc:e.description, url:e.url,
+      pos:`${d.title}::entry::${i}`,
+    }));
+  } else if (p === 'procedure') {
+    d.sections.forEach((s,si) => s.steps.forEach((st,sti) => items.push({
+      sheet:d.title, section:s.header, label:st.text, desc:'', url:st.url,
+      pos:`${d.title}::${si}::${sti}`,
+    })));
+  } else if (p === 'transfer_codes') {
+    d.sections.forEach((s,si) => s.codes.forEach((c,ci) => items.push({
+      sheet:d.title, section:s.header, label:c.descriptor, desc:c.code, url:'',
+      pos:`${d.title}::${si}::${ci}`, isCode:true, codeVal:c.code,
+    })));
+  } else if (p === 'lead_pass') {
+    d.qa_sections.forEach((s,si) => s.pairs.forEach((p2,pi) => items.push({
+      sheet:d.title, section:s.header, label:p2.question||p2.benefit, desc:p2.benefit,
+      url:'', pos:`${d.title}::qa::${si}::${pi}`,
+    })));
+    d.code_sections.forEach((s,si) => s.codes.forEach((c,ci) => items.push({
+      sheet:d.title, section:s.header, label:c.descriptor, desc:c.code, url:'',
+      pos:`${d.title}::lpcodes::${si}::${ci}`, isCode:true, codeVal:c.code,
+    })));
+  } else if (p === 'mixed_text') {
+    d.sections.forEach((s,si) => s.items.forEach((it,ii) => items.push({
+      sheet:d.title, section:s.header, label:it.text, desc:'', url:it.url,
+      pos:`${d.title}::${si}::${ii}`,
+    })));
+  }
+  return items;
+}
+
+const SEARCH_INDEX = Object.values(DATA).flatMap(d => flatEntries(d));
+
+/* ── search scoring ── */
+function scoreEntry(e, terms) {
+  if (!terms.length) return 1;
+  const hay = (e.label+' '+e.desc+' '+e.section+' '+e.sheet).toLowerCase();
+  let s = 0;
+  for (const t of terms) {
+    if (!hay.includes(t)) return 0;
+    if (e.label.toLowerCase().includes(t)) s += 4;
+    if (e.section.toLowerCase().includes(t)) s += 2;
+    if (e.desc.toLowerCase().includes(t)) s += 1;
+  }
+  return s;
+}
+
+/* ── tab bar ── */
+function renderTabs() {
+  const sheets = Object.keys(DATA);
+  const searching = !!searchQ;
+  let html = '';
+  if (searching) html += `<div class="tab ${activeSheet==='__search__'?'active':''}" data-sheet="__search__">🔍 Results</div>`;
+  html += sheets.map(s => `<div class="tab ${activeSheet===s&&!searching?'active':''}" data-sheet="${s}">${s.trim()}</div>`).join('');
+  tabsEl.innerHTML = html;
+}
+
+tabsEl.addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  activeSheet = t.dataset.sheet;
+  if (activeSheet !== '__search__') { searchQ = ''; q.value = ''; }
+  renderTabs(); render();
+});
+
+/* ── renderers ── */
+function renderTransferPanel(terms) {
+  const d = DATA['Transfer Codes'];
+  if (!d) return '';
+  let html = `<div id="tc-panel"><h2>⚡ Transfer Codes — Quick Copy</h2><div class="tc-grid">`;
+  d.sections.forEach(sec => {
+    html += `<div class="tc-section-title">${esc(sec.header)}</div>`;
+    sec.codes.forEach((c,ci) => {
+      const codeNum = phoneDetect(c.code) || c.code;
+      html += `
+        <button class="tc-btn" data-copy="${esc(c.code)}">
+          <span class="tc-desc">${hi(c.descriptor, terms)}</span>
+          <span class="tc-code">${hi(c.code, terms)}</span>
+          <span class="tc-icon">📋</span>
+        </button>`;
+    });
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+function renderCallFlow() {
+  const d = DATA['Call Flow'];
+  const TAG_STYLES = {
+    open:      'background:#E6F1FB;color:#185FA5',
+    verify:    'background:#FAEEDA;color:#854F0B',
+    calibrate: 'background:#E1F5EE;color:#0F6E56',
+    tip:       'background:#E1F5EE;color:#0F6E56',
+    solve:     'background:#EEEDFE;color:#534AB7',
+    wrap:      'background:#EAF3DE;color:#3B6D11',
+    flag:      'background:#FCEBEB;color:#A32D2D',
+  };
+
+  let html = `
+    <div style="max-width:700px">
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.7">
+      Your call spine — runs every call regardless of topic.
+      Topic-specific scripts live in the other tabs.
+    </div>`;
+
+  d.phases.forEach(ph => {
+    const isFlag = ph.phase.toLowerCase().includes('never') || ph.phase.toLowerCase().includes('flag');
+    html += `<div style="margin-bottom:1.5rem">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;
+        color:var(--muted);margin-bottom:8px">${esc(ph.phase)}</div>`;
+
+    ph.anchors.forEach((a, i) => {
+      const tagStyle = TAG_STYLES[a.type] || TAG_STYLES.open;
+      const isFlagAnchor = a.type === 'flag';
+      const borderLeft = isFlagAnchor
+        ? 'border-left:3px solid var(--red);border-radius:0 11px 11px 0'
+        : a.type === 'tip'
+          ? 'border-left:3px solid var(--green);border-radius:0 11px 11px 0'
+          : '';
+
+      // banned words render as pills
+      const bodyHtml = isFlagAnchor
+        ? a.text.split('·').map(w =>
+            `<span style="display:inline-block;font-size:12px;background:#ff4d6d22;
+              color:var(--red);padding:3px 12px;border-radius:999px;font-weight:600;
+              margin-right:6px">${esc(w.trim())}</span>`
+          ).join('')
+        : `<span style="font-size:14px;color:var(--text);line-height:1.65">${esc(a.text)}</span>`;
+
+      html += `
+        <div style="background:var(--surface);border:1px solid var(--border);
+          border-radius:11px;padding:13px 16px;margin-bottom:6px;${borderLeft}">
+          <div style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;
+            display:inline-block;margin-bottom:7px;${tagStyle}">${esc(a.tag)}</div>
+          <div>${bodyHtml}</div>
+        </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+function renderHome() {
+  const d = DATA['HOME'];
+  let html = `<div class="page-title">${esc(d.title)}</div>`;
+  if (d.intro_lines?.length) {
+    html += `<div class="nav-intro">${d.intro_lines.map(l=>esc(l)).join('<br>')}</div>`;
+  }
+  html += `<div class="nav-grid">`;
+  d.cards.forEach((c,i) => {
+    const pos = `home::card::${i}`;
+    const sc = getEdit(pos,'script_blurb');
+    html += `
+      <div class="nav-card" ${c.target_sheet?`data-goto="${esc(c.target_sheet)}"`:''}>
+        <div class="nc-label">${esc(c.label)}</div>
+        <div class="nc-desc">${esc(c.description)}</div>
+        <div class="nc-arrow">→ ${esc(c.target_sheet||'')}</div>
+        ${scriptField(pos)}
+      </div>`;
+  });
+  html += `</div>`;
+  if (d.callout) {
+    html += `<div class="callout-box"><h3>${esc(d.callout.title)}</h3><ul>`;
+    d.callout.lines.forEach(l => { html += `<li>${esc(l)}</li>`; });
+    html += `</ul></div>`;
+  }
+  return html;
+}
+
+function renderCatalog(sheet, terms) {
+  const d = DATA[sheet];
+  // Group sections by position into columns (sections sharing similar col values)
+  // Sort by (col, row) to restore left-to-right visual order
+  const sorted = [...d.sections].sort((a,b) => a.col-b.col || a.row-b.row);
+  
+  // Split into left/right columns by median column number
+  const cols = sorted.map(s=>s.col);
+  const mid = cols.length ? cols[Math.floor(cols.length/2)] : 999;
+  const left = sorted.filter(s=>s.col <= mid);
+  const right = sorted.filter(s=>s.col > mid);
+  
+  const renderSec = (sec, si) => {
+    let html = `<div class="cat-section-title">${esc(sec.header)}</div>`;
+    sec.items.forEach((it,ii) => {
+      const pos = `${d.title}::${si}::${ii}`;
+      const sc = getEdit(pos,'script_blurb');
+      const ph = phoneDetect(it.label);
+      html += `<div class="cat-item">
+        ${it.url ? `<a href="${esc(it.url)}" target="_blank" rel="noopener">${hi(it.label,terms)}<span class="cat-item-ext">↗</span></a>` 
+                 : `<span>${hi(it.label,terms)}</span>`}
+        ${ph ? copyBtn(ph) : ''}
+        ${scriptField(pos)}
+      </div>`;
+    });
+    return html;
+  };
+  
+  // find original section index
+  const leftIdxed = left.map(s => ({s, si: d.sections.indexOf(s)}));
+  const rightIdxed = right.map(s => ({s, si: d.sections.indexOf(s)}));
+  
+  let html = `<div class="page-title">${esc(d.title)}</div>`;
+  html += `<div class="catalog-cols">`;
+  if (leftIdxed.length) {
+    html += `<div class="catalog-col">${leftIdxed.map(({s,si})=>renderSec(s,si)).join('')}</div>`;
+  }
+  if (rightIdxed.length) {
+    html += `<div class="catalog-col">${rightIdxed.map(({s,si})=>renderSec(s,si)).join('')}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function renderCards(sheet, terms) {
+  const d = DATA[sheet];
+  let html = `<div class="page-title">${esc(d.title)}</div><div class="card-grid">`;
+  d.entries.forEach((e,i) => {
+    const pos = `${d.title}::entry::${i}`;
+    const sc = getEdit(pos,'script_blurb');
+    html += `<div class="card ${sc?'scripted':''}">
+      <div class="card-label">${hi(e.label,terms)}</div>
+      ${e.description ? `<div class="card-desc">${hi(e.description,terms)}</div>` : ''}
+      ${scriptField(pos)}
+      <div class="card-footer">${linkBtn(e.url)}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderProcedure(sheet, terms) {
+  const d = DATA[sheet];
+  let html = `<div class="page-title">${esc(d.title)}</div>`;
+  if (d.intro_links?.length) {
+    html += `<div class="proc-intro"><span>Help articles:</span>`;
+    d.intro_links.forEach(l => { html += linkBtn(l.url, l.label); });
+    html += `</div>`;
+  }
+  d.sections.forEach((sec,si) => {
+    html += `<div class="proc-section">`;
+    if (sec.header) html += `<h2>${esc(sec.header)}</h2>`;
+    sec.steps.forEach((st,sti) => {
+      const pos = `${d.title}::${si}::${sti}`;
+      const m = st.text.match(/^(\d+[.)]\s*|[a-z]\.\s*)(.*)/);
+      const num = m ? m[1].trim() : '';
+      const body = m ? m[2] : st.text;
+      const ph = phoneDetect(body);
+      html += `<div class="step ${st.substep?'sub':''}">
+        <span class="step-num">${esc(num)}</span>
+        <div class="step-body">
+          ${hi(body,terms)}
+          ${ph ? ' ' + copyBtn(ph.replace(/[-.\s]/g,'')) : ''}
+          ${st.url ? ' ' + linkBtn(st.url,'↗') : ''}
+          ${scriptField(pos)}
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  return html;
+}
+
+function renderTransferSheet(terms) {
+  return `<div class="page-title">Transfer Codes</div>` + renderTransferPanel(terms);
+}
+
+function renderLeadPass(terms) {
+  const d = DATA['Lead Pass '];
+  if (!d) return '<div class="empty">Lead Pass not found</div>';
+  let html = `<div class="page-title">${esc(d.title)}</div>`;
+  if (d.intro) html += `<div style="color:var(--amber);font-weight:700;margin-bottom:14px;font-size:13px">${esc(d.intro)}</div>`;
+  d.qa_sections.forEach((sec,si) => {
+    html += `<div class="lp-section"><h2>${esc(sec.header)}</h2>
+      <table class="lp-table">
+        <thead><tr><th>Question to ask</th><th>Benefit to mention</th></tr></thead>
+        <tbody>`;
+    sec.pairs.forEach((p,pi) => {
+      const pos = `${d.title}::qa::${si}::${pi}`;
+      html += `<tr>
+        <td class="q-col">${hi(p.question,terms)}</td>
+        <td class="b-col">${hi(p.benefit,terms)}${editMode?`<br>${scriptField(pos)}`:''}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  });
+  if (d.code_sections.length) {
+    html += `<div class="lp-section"><h2>Lead Transfer Codes</h2><div class="lp-codes">`;
+    d.code_sections.forEach((sec,si) => {
+      sec.codes.forEach((c,ci) => {
+        html += `<button class="tc-btn" data-copy="${esc(c.code)}">
+          <span class="tc-desc">${hi(c.descriptor,terms)}</span>
+          <span class="tc-code">${hi(c.code,terms)}</span>
+          <span class="tc-icon">📋</span>
+        </button>`;
+      });
+    });
+    html += `</div></div>`;
+  }
+  return html;
+}
+
+function renderMixed(sheet, terms) {
+  const d = DATA[sheet];
+  let html = `<div class="page-title">${esc(d.title)}</div>`;
+  d.sections.forEach((sec,si) => {
+    html += `<div class="mixed-section">`;
+    if (sec.header) html += `<h2>${esc(sec.header)}</h2>`;
+    sec.items.forEach((it,ii) => {
+      const pos = `${d.title}::${si}::${ii}`;
+      const ph = phoneDetect(it.text);
+      html += `<div class="mixed-item">
+        <div class="mi-text ${it.bold?'bold':'normal'}">${hi(it.text,terms)}</div>
+        <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
+          ${it.url ? linkBtn(it.url,'↗') : ''}
+          ${ph && !it.url ? copyBtn(ph.replace(/[-.\s]/g,'')) : ''}
+        </div>
+      </div>`;
+      if (editMode) {
+        html += `<div style="padding:0 10px 6px 10px">${scriptField(pos)}</div>`;
+      } else {
+        const sc = getEdit(pos,'script_blurb');
+        if (sc) html += `<div style="padding:0 10px 6px 10px"><div class="script-blurb">${esc(sc)}</div></div>`;
+      }
+    });
+    html += `</div>`;
+  });
+  return html;
+}
+
+function renderSearch() {
+  const terms = tok(searchQ);
+  const hits = SEARCH_INDEX
+    .map(e => ({e, s: scoreEntry(e, terms)}))
+    .filter(x => x.s > 0)
+    .sort((a,b) => b.s - a.s);
+  
+  fstat.textContent = `${hits.length} results`;
+  if (!hits.length) return `<div class="empty">No matches. Try different keywords.</div>`;
+  
+  let html = `<div class="page-title" style="font-size:16px">
+    ${hits.length} results for "${esc(searchQ)}"
+  </div><div class="results-list">`;
+  
+  hits.forEach(({e}) => {
+    const sc = getEdit(e.pos,'script_blurb');
+    const isCode = e.isCode;
+    html += `<div class="result-card">
+      <div class="rc-meta">${esc(e.sheet.trim())}${e.section?' · '+esc(e.section):''}</div>
+      <div class="rc-label">${hi(e.label,terms)}</div>
+      ${e.desc && !isCode ? `<div class="rc-desc">${hi(e.desc,terms)}</div>` : ''}
+      ${isCode ? `<div class="rc-footer">${copyBtn(e.codeVal)}</div>` : ''}
+      ${sc ? `<div class="script-blurb">${esc(sc)}</div>` : ''}
+      <div class="rc-footer">
+        ${e.url ? linkBtn(e.url) : ''}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+/* ── main render ── */
+function render() {
+  const terms = tok(searchQ);
+  
+  if (searchQ && activeSheet !== '__search__') { activeSheet = '__search__'; renderTabs(); }
+  if (!searchQ && activeSheet === '__search__') { activeSheet = 'Call Flow'; renderTabs(); }
+  
+  let html = '';
+  
+  if (activeSheet === '__search__') {
+    html = renderSearch();
+  } else {
+    const d = DATA[activeSheet];
+    if (!d) { html = `<div class="empty">Sheet not found</div>`; }
+    else {
+      const p = d.pattern;
+      // Transfer Codes sheet always shows the dedicated panel first
+      if (activeSheet === 'Call Flow') {
+        html = renderCallFlow();
+      } else if (activeSheet === 'Transfer Codes') {
+        html = renderTransferSheet(terms);
+      } else if (activeSheet === 'HOME') {
+        html = renderHome();
+      } else if (p === 'multi_column_catalog') {
+        html = renderCatalog(activeSheet, terms);
+      } else if (p === 'label_desc_link') {
+        html = renderCards(activeSheet, terms);
+      } else if (p === 'procedure') {
+        html = renderProcedure(activeSheet, terms);
+      } else if (p === 'lead_pass') {
+        html = renderLeadPass(terms);
+      } else if (p === 'mixed_text') {
+        html = renderMixed(activeSheet, terms);
+      }
+    }
+    // Show TC panel on non-TC, non-search pages when Transfer Codes data available
+    // (only if not already TC sheet)
+    if (activeSheet !== 'Transfer Codes' && DATA['Transfer Codes'] && !searchQ) {
+      // Small quick-access panel at top
+    }
+    fstat.textContent = d ? `${activeSheet.trim()} — ${d.pattern}` : '';
+  }
+  
+  contentEl.innerHTML = html;
+  updateProgress();
+}
+
+/* ── events ── */
+q.addEventListener('input', e => { searchQ = e.target.value; renderTabs(); render(); });
+q.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { q.value=''; searchQ=''; activeSheet='Call Flow'; renderTabs(); render(); }
+  if (e.key === 'Enter') {
+    const first = contentEl.querySelector('a.link-btn');
+    if (first) first.click();
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key==='/' && document.activeElement!==q) { e.preventDefault(); q.focus(); q.select(); }
+  if (e.key==='Tab' && e.altKey) {
+    e.preventDefault();
+    const sheets = Object.keys(DATA);
+    const idx = sheets.indexOf(activeSheet);
+    activeSheet = sheets[(idx+1) % sheets.length];
+    searchQ=''; q.value='';
+    renderTabs(); render();
+  }
+});
+
+contentEl.addEventListener('input', e => {
+  const t = e.target;
+  if (!t.dataset.pos) return;
+  setEdit(t.dataset.pos, t.dataset.field, t.value);
+});
+
+contentEl.addEventListener('click', e => {
+  const copy = e.target.closest('[data-copy]');
+  if (copy) { e.preventDefault(); navigator.clipboard.writeText(copy.dataset.copy).then(() => showToast('Copied: '+copy.dataset.copy.slice(0,50))); return; }
+  const goto = e.target.closest('[data-goto]');
+  if (goto) { activeSheet = goto.dataset.goto; searchQ=''; q.value=''; renderTabs(); render(); }
+});
+
+editBtn.addEventListener('click', () => {
+  editMode = !editMode;
+  editBtn.classList.toggle('on', editMode);
+  editBanner.classList.toggle('on', editMode);
+  render();
+});
+
+exportBtn.addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(edits,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'qb_edits_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+});
+
+importFile.addEventListener('change', e => {
+  const f = e.target.files[0]; if(!f) return;
+  new FileReader().onload = ev => {
+    try {
+      edits = {...edits, ...JSON.parse(ev.target.result)};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(edits));
+      render(); showToast('Edits imported');
+    } catch(err) { alert('Import failed: '+err.message); }
+  }, new FileReader().readAsText(f);
+  // fix: proper reader call
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      edits = {...edits, ...JSON.parse(ev.target.result)};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(edits));
+      render(); showToast('Edits imported ✓');
+    } catch(err) { alert('Import failed: '+err.message); }
+  };
+  reader.readAsText(f);
+});
+
+/* ── init ── */
+renderTabs();
+render();
+</script>
+</body>
+</html>
