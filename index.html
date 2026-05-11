@@ -583,7 +583,6 @@ function renderCallFlow() {
     </div>`;
 
   d.phases.forEach(ph => {
-    const isFlag = ph.phase.toLowerCase().includes('never') || ph.phase.toLowerCase().includes('flag');
     html += `<div style="margin-bottom:1.5rem">
       <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;
         color:var(--muted);margin-bottom:8px">${esc(ph.phase)}</div>`;
@@ -597,7 +596,6 @@ function renderCallFlow() {
           ? 'border-left:3px solid var(--green);border-radius:0 11px 11px 0'
           : '';
 
-      // banned words render as pills
       const bodyHtml = isFlagAnchor
         ? a.text.split('·').map(w =>
             `<span style="display:inline-block;font-size:12px;background:#ff4d6d22;
@@ -606,13 +604,16 @@ function renderCallFlow() {
           ).join('')
         : `<span style="font-size:14px;color:var(--text);line-height:1.65">${esc(a.text)}</span>`;
 
+      const pos = 'callflow::' + ph.phase + '::' + i;
+      const scriptHtml = (!isFlagAnchor) ? scriptField(pos) : '';
+
       html += `
         <div style="background:var(--surface);border:1px solid var(--border);
           border-radius:11px;padding:13px 16px;margin-bottom:6px;${borderLeft}">
           <div style="font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;
             display:inline-block;margin-bottom:7px;${tagStyle}">${esc(a.tag)}</div>
           <div>${bodyHtml}</div>
-          ${!isFlagAnchor ? scriptField(`callflow::${ph.phase}::${i}`) : ''}
+          ` + scriptHtml + `
         </div>`;
     });
 
