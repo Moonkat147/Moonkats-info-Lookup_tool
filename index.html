@@ -280,6 +280,47 @@ kbd{background:var(--surface3);border:1px solid var(--border2);border-radius:4px
 </head>
 <body>
 
+<div id="lock-screen" style="
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+">
+  <div style="font:700 22px var(--mono);color:var(--accent)">Moonk@ts <span style="color:var(--text)">QB Expert</span></div>
+  <div style="color:var(--muted);font-size:13px">Enter access code to continue</div>
+  <input id="pw-input" type="password" placeholder="Password"
+    style="padding:11px 16px;border-radius:9px;border:1px solid var(--border2);
+    background:var(--surface2);color:var(--text);font:15px var(--mono);
+    outline:none;width:220px;text-align:center;letter-spacing:4px"
+    autofocus>
+  <div id="pw-error" style="color:var(--red);font-size:12px;display:none">Incorrect password</div>
+  <button onclick="checkPassword()" style="
+    padding:9px 28px;border-radius:8px;border:none;
+    background:var(--accent);color:#001820;font:600 14px var(--font);
+    cursor:pointer;
+  ">Enter</button>
+</div>
+
+<script>
+function checkPassword() {
+  const val = document.getElementById('pw-input').value;
+  if (val.toUpperCase() === 'QBO') {
+    document.getElementById('lock-screen').style.display = 'none';
+    localStorage.setItem('qb_auth', '1');
+  } else {
+    document.getElementById('pw-error').style.display = 'block';
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkPassword();
+});
+// Auto-unlock if already authenticated this session
+if (localStorage.getItem('qb_auth') === '1') {
+  document.getElementById('lock-screen').style.display = 'none';
+}
+</script>
+
 <div id="hdr">
   <div class="brand"><em>Moonk@ts</em> QB Expert Packet<small>lookup</small></div>
   <input id="q" type="search" placeholder="Search everything…  (press / to focus)" autocomplete="off">
