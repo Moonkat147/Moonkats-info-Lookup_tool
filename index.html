@@ -585,6 +585,37 @@ DATA['Salesforce Workflow'] = DATA['Salesforce Workflow'] || {
   sections: (DATA['Call Flow'] && DATA['Call Flow'].salesforce && DATA['Call Flow'].salesforce.sections) ? DATA['Call Flow'].salesforce.sections : []
 };
 
+
+// ── HotKeys synthetic tab ──
+DATA['HotKeys'] = {"pattern": "hotkeys", "title": "HotKeys", "source_note": "Keys can vary by browser/app version. In QBO, press Ctrl+Alt+? (Mac: Control+Option+?) to open the built-in shortcut guide and confirm active shortcuts.", "sections": [{"header": "QBO — Live Call Essentials", "items": [{"action": "Show shortcut guide + Company ID", "keys": "Ctrl + Alt + ?", "product": "QBO", "category": "General", "confidence": "Official/current", "when": "Use at the start of support calls to show QBO shortcut reference and locate Company ID / technical details.", "tip": "Best first shortcut to remember. If other keys fail, verify them here."}, {"action": "Global/Search transactions", "keys": "Ctrl + Alt + F", "product": "QBO", "category": "Navigate", "confidence": "Common QBO overlay", "when": "Find transactions, customers, vendors, amounts, or reference numbers quickly.", "tip": "Great during invoice/payment mystery calls."}, {"action": "Help", "keys": "Ctrl + Alt + H", "product": "QBO", "category": "General", "confidence": "Common QBO overlay", "when": "Open help without hunting menus.", "tip": "Use KB/Help Panel for agent-side source, QBO Help for customer-facing navigation."}, {"action": "Run Payroll", "keys": "Ctrl + Alt + U", "product": "QBO Payroll", "category": "Payroll", "confidence": "Official/current", "when": "Shortcut to payroll run flow if payroll exists / is set up.", "tip": "Payroll support lane starts next week; keep in pocket for later."}]}, {"header": "QBO — Create New Transactions", "items": [{"action": "New Invoice", "keys": "Ctrl + Alt + I", "product": "QBO", "category": "Create New", "confidence": "Common QBO overlay", "when": "Create an invoice quickly during billing/customer workflows.", "tip": "Invoice = bill now, customer pays later."}, {"action": "New Expense", "keys": "Ctrl + Alt + X", "product": "QBO", "category": "Create New", "confidence": "Common QBO overlay", "when": "Record a direct purchase already paid by bank/card.", "tip": "Expense ≠ Bill. Expense means paid now/already paid."}, {"action": "Write Check", "keys": "Ctrl + Alt + W", "product": "QBO", "category": "Create New", "confidence": "Common QBO overlay", "when": "Record a physical check payment from a bank account.", "tip": "Good for vendor/business expense payments by paper check."}, {"action": "Receive Payment", "keys": "Ctrl + Alt + R", "product": "QBO", "category": "Create New", "confidence": "Common QBO overlay", "when": "Apply a customer payment to open invoices.", "tip": "For invoice already created. Avoid recording only a deposit if invoice should close."}, {"action": "New Estimate", "keys": "Ctrl + Alt + E", "product": "QBO", "category": "Create New", "confidence": "Common QBO overlay", "when": "Create a quote/estimate that can later convert to invoice.", "tip": "Estimates do not post to books until converted/accepted flow."}, {"action": "Journal Entry", "keys": "Ctrl + Alt + J", "product": "QBO", "category": "Create New", "confidence": "Common QBO overlay", "when": "Direct debit/credit adjustment, usually accountant-guided.", "tip": "Boundary: avoid accounting advice; customer/accountant decides entries."}]}, {"header": "QBO — Navigation Shortcuts", "items": [{"action": "Customers", "keys": "Ctrl + Alt + C", "product": "QBO", "category": "Navigate", "confidence": "Common QBO overlay", "when": "Jump to customer list for invoice/payment/customer balance calls.", "tip": "Compare exact customer/sub-customer names here."}, {"action": "Vendors", "keys": "Ctrl + Alt + V", "product": "QBO", "category": "Navigate", "confidence": "Common QBO overlay", "when": "Jump to vendor list for bills, expenses, vendor credits.", "tip": "Vendor = money going out / A/P side."}, {"action": "Chart of Accounts / Accounts", "keys": "Ctrl + Alt + A", "product": "QBO", "category": "Navigate", "confidence": "Common QBO overlay", "when": "Open accounts list for COA review, bank/expense account questions.", "tip": "Do not tell customer which account/category to choose if it becomes accounting advice."}, {"action": "Lists", "keys": "Ctrl + Alt + L", "product": "QBO", "category": "Navigate", "confidence": "Common QBO overlay", "when": "Open list-related areas depending QBO UI context.", "tip": "If it fails, verify in Ctrl+Alt+? overlay."}]}, {"header": "Official Date Shortcuts — Cursor Must Be in Date Field", "items": [{"action": "Today’s date", "keys": "T", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Auto-fill today in date fields.", "tip": "Fastest date shortcut."}, {"action": "Next day", "keys": "+", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Move selected date forward one day.", "tip": "Use after T to walk date forward."}, {"action": "Previous day", "keys": "-", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Move selected date backward one day.", "tip": "Use after T to backdate quickly."}, {"action": "First day of week", "keys": "W", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Set date to first day of current week.", "tip": "Useful for weekly payroll/report ranges."}, {"action": "Last day of week", "keys": "K", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Set date to last day of current week.", "tip": "Week-end cutoff helper."}, {"action": "First day of month", "keys": "M", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Set date to first day of current month.", "tip": "Month-to-date report setup."}, {"action": "Last day of month", "keys": "H", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Set date to last day of current month.", "tip": "Month-end reports/reconciliation date helper."}, {"action": "First day of year", "keys": "Y", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Set date to January 1 of current year.", "tip": "YTD reports."}, {"action": "Last day of year", "keys": "R", "product": "QBO/Desktop", "category": "Dates", "confidence": "Official/current", "when": "Set date to December 31 of current year.", "tip": "Year-end reports."}]}, {"header": "Official Form / Field Helpers", "items": [{"action": "Save form", "keys": "Alt + S / Chrome-Firefox: Alt + Shift + S", "product": "QBO", "category": "Edit/Forms", "confidence": "Official/current", "when": "Save current form without clicking Save.", "tip": "Mac: Option + Control + S."}, {"action": "Edit selected saved transaction", "keys": "Alt + E", "product": "QBO", "category": "Edit/Forms", "confidence": "Official/current", "when": "Open selected saved transaction for editing.", "tip": "Use cautiously; verify customer intent before changes."}, {"action": "Move forward/back fields", "keys": "Tab / Shift + Tab", "product": "QBO", "category": "Edit/Forms", "confidence": "Official/current", "when": "Navigate fields while filling forms.", "tip": "Keeps hands off mouse during walkthroughs."}, {"action": "Open dropdown", "keys": "Alt + Down Arrow", "product": "QBO", "category": "Edit/Forms", "confidence": "Official/current", "when": "Open dropdown lists or calendar in fields.", "tip": "Then arrow keys + Tab to select."}, {"action": "Calculate amount/rate", "keys": "Formula + Tab", "product": "QBO", "category": "Edit/Forms", "confidence": "Official/current", "when": "Enter 125+50 or 108*1.085 in amount/rate field and Tab to calculate.", "tip": "Tiny calculator built into amount fields."}]}, {"header": "Desktop — Later / Not Your Current Online Lane", "items": [{"action": "Create Invoice", "keys": "Ctrl + I", "product": "Desktop", "category": "Create New", "confidence": "Official Desktop", "when": "Open invoice in QB Desktop.", "tip": "Desktop ≠ QBO. Transfer Desktop callers to proper QBDT lane."}, {"action": "Write Checks", "keys": "Ctrl + W", "product": "Desktop", "category": "Create New", "confidence": "Official Desktop", "when": "Open Write Checks in Desktop.", "tip": "Desktop users get QBDT support, not Online Core."}, {"action": "Find Transaction", "keys": "Ctrl + F", "product": "Desktop", "category": "Navigate", "confidence": "Official Desktop", "when": "Search Desktop transactions by criteria.", "tip": "Powerful desktop audit tool."}, {"action": "QuickReport", "keys": "Ctrl + Q", "product": "Desktop", "category": "Reports", "confidence": "Official Desktop", "when": "Quick report for selected customer/vendor/account/item.", "tip": "Useful to recognize, but not your Online day-one lane."}, {"action": "Transaction Journal", "keys": "Ctrl + Y", "product": "Desktop", "category": "Reports", "confidence": "Official Desktop", "when": "Show debit/credit journal behind Desktop transaction.", "tip": "Advanced/accounting caution zone."}, {"action": "Product Information", "keys": "F2", "product": "Desktop", "category": "General", "confidence": "Official Desktop", "when": "Show Desktop version/license/build info.", "tip": "Desktop troubleshooting identifier."}]}]};
+
+// ── Source provenance / coverage tab ──
+DATA['Source Index'] = {"pattern": "label_desc_link", "title": "Source Index", "entries": [{"label": "QBO Expert Packet workbook (local XLSX)", "description": "Original expert packet source file. Parsed into app tabs including Payroll Links, Elite|Premium, Transfer Codes, Tools, Banking/Login/Billing Issues, and QB Support Articles.", "url": "references/QBO Expert Packet (3).xlsx"}, {"label": "Parsed workbook JSON snapshot", "description": "Generated data used by the app. Use this to audit which workbook rows became searchable cards/tabs.", "url": "data/full_parsed.json"}, {"label": "Payroll Links tab — expert packet coverage", "description": "Payroll source material is implemented as its own app tab: Process Links, Bank, Taxes, Paychecks and Employees, Payroll Quarters, Filings/Forms, and Account Setup/Issues.", "url": ""}, {"label": "Elite|Premium payroll/time tab coverage", "description": "Payroll Premium/Elite and QuickBooks Time source material is implemented under the Elite|Premium tab with setup, employees, overtime, reports, kiosk, and product-benefit sections.", "url": ""}, {"label": "Official QuickBooks Support: Add and manage users", "description": "Official QBO source metadata (Updated recently; checked 2026-05-09). Local source file: references/qbo-sources/sources/quickbooks support - add-and-manage-users-qbo.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-users/add-manage-users-quickbooks-online/L1welhiJZ_US_en_US"}, {"label": "Add an account to your chart of accounts in QuickBooks Online", "description": "Official QBO source metadata (2 weeks ago). Local source file: references/qbo-sources/sources/quickbooks support - official - add-chart-account.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/chart-accounts/add-account-chart-accounts-quickbooks-online/L0mCv3AKn_US_en_US"}, {"label": "Add and manage users", "description": "Official QBO source metadata (1 week ago). Local source file: references/qbo-sources/sources/quickbooks support - official - add-manage-users.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/manage-users/add-manage-users-quickbooks-online/L1welhiJZ_US_en_US"}, {"label": "Set up and use automated sales tax in QuickBooks Online", "description": "Official QBO source metadata (1 week ago). Local source file: references/qbo-sources/sources/quickbooks support - official - automated-sales-tax.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/sales-taxes/set-use-automated-sales-tax-quickbooks-online/L4Lx8eL7V_US_en_US"}, {"label": "Update your bank feeds and bank info", "description": "Official QBO source metadata (2 weeks ago). Local source file: references/qbo-sources/sources/quickbooks support - official - bank-download-error.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/get-bank-error-download-transactions-quickbooks/L5Tek4yh7_US_en_US"}, {"label": "Differences between bills, checks, and expenses", "description": "Official QBO source metadata (1 month ago). Local source file: references/qbo-sources/sources/quickbooks support - official - bill-check-expense-difference.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/accounts-payable/learn-difference-bills-checks-expenses-quickbooks/L0ZtL2TYI_US_en_US"}, {"label": "Categorize online bank transactions in QuickBooks Online", "description": "Official QBO source metadata (a day ago). Local source file: references/qbo-sources/sources/quickbooks support - official - categorize-bank-transactions.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/banking/categorize-match-online-bank-transactions-online/L1bTafTz3_US_en_US"}, {"label": "Chart of accounts in QuickBooks Online", "description": "Official QBO source metadata (2 weeks ago). Local source file: references/qbo-sources/sources/quickbooks support - official - chart-of-accounts.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/chart-accounts/learn-chart-accounts-quickbooks-online/L2yc6KBob_US_en_US"}, {"label": "Connect bank and credit card accounts to QuickBooks Online", "description": "Official QBO source metadata (2 days ago). Local source file: references/qbo-sources/sources/quickbooks support - official - connect-bank-accounts.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/chart-accounts/connect-bank-accounts-manage-imported-transactions/L7jjS01lG_US_en_US"}, {"label": "Create invoices", "description": "Official QBO source metadata (4 days ago). Local source file: references/qbo-sources/sources/quickbooks support - official - create-invoices.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/invoicing/create-invoices-quickbooks-online/L7gSzvCld_US_en_US"}, {"label": "Customize reports", "description": "Official QBO source metadata (1 week ago). Local source file: references/qbo-sources/sources/quickbooks support - official - customize-reports.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/customize-reports/customize-reports-quickbooks-online/L0gKmSawG_US_en_US"}, {"label": "Enter bills in QuickBooks Online", "description": "Official QBO source metadata (2 weeks ago). Local source file: references/qbo-sources/sources/quickbooks support - official - enter-bills.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/pay-bills/enter-bills-record-bill-payments-quickbooks-online/L1e9Ce5J7_US_en_US"}, {"label": "Match your bank and credit card transactions", "description": "Official QBO source metadata (2 weeks ago). Local source file: references/qbo-sources/sources/quickbooks support - official - match-bank-transactions.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-feeds/match-online-bank-transactions-quickbooks-online/L6qyw0PvP_US_en_US"}, {"label": "Find missing downloaded transactions", "description": "Official QBO source metadata (2 weeks ago). Local source file: references/qbo-sources/sources/quickbooks support - official - missing-downloaded-transactions.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/bank-feeds/cant-find-downloaded-transactions-quickbooks/L6XWbwrbG_US_en_US"}, {"label": "Pay bills in QuickBooks Online", "description": "Official QBO source metadata (1 month ago). Local source file: references/qbo-sources/sources/quickbooks support - official - pay-bills.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/pay-bills/pay-bills-quickbooks-online/L3eEpgbLD_US_en_US"}, {"label": "Run a profit and loss comparison report", "description": "Official QBO source metadata (3 weeks ago). Local source file: references/qbo-sources/sources/quickbooks support - official - profit-loss-comparison.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/report-management/run-profit-loss-comparison-report/L6GthoBhe_US_en_US"}, {"label": "quickbooks support - official - qbo-intuit-account-password-reset", "description": "Official QBO source metadata (2026-05-10). Local source file: references/qbo-sources/sources/quickbooks support - official - qbo-intuit-account-password-reset.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/account-management/get-help-sign-quickbooks-online-account/L389eWYin_US_en_US"}, {"label": "quickbooks support - official - qbo-user-roles-and-permissions-official", "description": "Official QBO source metadata (2026-05-10). Local source file: references/qbo-sources/sources/quickbooks support - official - qbo-user-roles-and-permissions-official.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/access-permissions/user-roles-access-rights-quickbooks-online/L66POfRrI_US_en_US"}, {"label": "Reconcile an account in QuickBooks Online", "description": "Official QBO source metadata (1 month ago). Local source file: references/qbo-sources/sources/quickbooks support - official - reconcile-account.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/statement-reconciliation/reconcile-account-quickbooks-online/L3XzsllsK_US_en_US"}, {"label": "Record invoice payments", "description": "Official QBO source metadata (1 month ago). Local source file: references/qbo-sources/sources/quickbooks support - official - record-invoice-payments.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/invoicing/record-invoice-payments-quickbooks-online/L4ZadDW7F_US_en_US"}, {"label": "Understand your QuickBooks Online subscription invoice", "description": "Official QBO source metadata (3 days ago). Local source file: references/qbo-sources/sources/quickbooks support - official - understand-subscription-invoice.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/intuit-subscriptions/understand-quickbooks-online-invoice/L7YcHNNAz_US_en_US"}, {"label": "Void or delete transactions in QuickBooks Online", "description": "Official QBO source metadata (2 days ago). Local source file: references/qbo-sources/sources/quickbooks support - official - void-delete-transactions.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/manage-customers-and-income/void-or-delete-an-invoice-bill-or-other-transactions/00/262760"}, {"label": "Void or refund customer payments", "description": "Official QBO source metadata (4 days ago). Local source file: references/qbo-sources/sources/quickbooks support - official - void-refund-payments.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/journal-entries/void-refund-customer-payments-quickbooks-online/L9hA2VNB2_US_en_US"}, {"label": "QuickBooks Video Resource Index", "description": "Video source index and policy notes; use official support articles as source of truth and videos as walkthrough support.", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/business-profile/learn-quickbooks-online-videos/L20eVgTOt_US_en_US"}, {"label": "How to add and manage users in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - add-manage-users.md", "url": "https://www.youtube.com/watch?v=rIJInt4ShO8"}, {"label": "How to categorize transactions in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - categorize-transactions.md", "url": "https://www.youtube.com/watch?v=FDp76VX7bO0"}, {"label": "Understanding how the chart of accounts works in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - chart-of-accounts.md", "url": "https://www.youtube.com/watch?v=dcGv86GGX44"}, {"label": "How to connect your bank & credit card accounts to QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - connect-bank-credit-card-accounts.md", "url": "https://www.youtube.com/watch?v=LMgxbcsWANg"}, {"label": "How to create and customize an invoice in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - create-customize-invoice.md", "url": "https://www.youtube.com/watch?v=N7q2MlMG6xw"}, {"label": "How to create a sales receipt in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - create-sales-receipt.md", "url": "https://www.youtube.com/watch?v=4rtenL8X1UE"}, {"label": "Intro to QuickBooks Online for QuickBooks Desktop users", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - desktop-users-qbo-intro.md", "url": "https://www.youtube.com/watch?v=53kOVgonOXE"}, {"label": "Get started in QuickBooks Online: a quick tour & what to do next", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - get-started-quick-tour.md", "url": "https://www.youtube.com/watch?v=hQw7D7yrYyM"}, {"label": "QuickBooks Video Learning Policy", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - quickbooks-video-learning-policy.md", "url": "https://www.youtube.com/@QuickBooks"}, {"label": "How to reconcile your accounts in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - reconcile-accounts.md", "url": "https://www.youtube.com/watch?v=YTss2L7Fo3Q"}, {"label": "How to record an invoice payment in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - record-invoice-payment.md", "url": "https://www.youtube.com/watch?v=M-Iqw2CVszU"}, {"label": "Set up and use automated sales tax in QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - sales-tax-automated.md", "url": "https://quickbooks.intuit.com/learn-support/en-us/help-article/sales-taxes/set-use-automated-sales-tax-quickbooks-online/L4Lx8eL7V_US_en_US"}, {"label": "How to upload transactions manually to QuickBooks Online", "description": "Official/video source card. Local source file: references/qbo-sources/sources/quickbooks support - videos - upload-transactions-manually.md", "url": "https://www.youtube.com/watch?v=Rl0bTIHaeJU"}, {"label": "Class/video transcript files (local VTT)", "description": "8 transcript files are preserved in references/qbo-sources/sources. They are source artifacts, but not all transcript text is imported into searchable cards.", "url": "references/qbo-sources/sources/transcript - Transcript (7).vtt"}]};
+
+// Add lightweight explanations to expert-packet rows that were link-only in the workbook.
+(function enrichSourceDescriptions(){
+  const payroll = DATA['Payroll Links'];
+  if (payroll && payroll.sections) {
+    payroll.sections.forEach(sec => (sec.items || []).forEach(it => {
+      if (!it.description) {
+        if (sec.header === 'Payroll Quarters') {
+          it.description = 'Payroll quarter date range reference for filing/payment timing. Verify exact filing obligations in the linked tax/payroll article or customer account.';
+        } else {
+          it.description = `Payroll ${sec.header} reference from the expert packet. Use for ${it.label}; confirm current steps in the linked article/tool before giving final guidance.`;
+        }
+      }
+    }));
+  }
+  const elite = DATA['Elite|Premium '];
+  if (elite && elite.sections) {
+    elite.sections.forEach(sec => (sec.items || []).forEach(it => {
+      if (!it.description) {
+        it.description = `${sec.header} reference from the expert packet. Explains Payroll Premium/Elite or QuickBooks Time coverage; open the link when available for current details.`;
+      }
+    }));
+  }
+})();
+
 const SQS_OVERLAY = {
   'greeting': {
     marker: 'Greeting / Branded Intro', impact: 'Low weight',
@@ -833,6 +864,11 @@ function flatEntries(d) {
       sheet:d.title, section:s.header, label:c.descriptor, desc:c.code, url:'',
       pos:`${d.title}::lpcodes::${si}::${ci}`, isCode:true, codeVal:c.code,
     })));
+  } else if (p === 'hotkeys') {
+    d.sections.forEach((s,si) => (s.items||[]).forEach((it,ii) => items.push({
+      sheet:d.title, section:s.header, label:it.action, desc:(it.keys||'')+' '+(it.when||'')+' '+(it.tip||''), url:'',
+      pos:`${d.title}::${si}::${ii}`,
+    })));
   } else if (p === 'mixed_text') {
     d.sections.forEach((s,si) => s.items.forEach((it,ii) => items.push({
       sheet:d.title, section:s.header, label:it.text, desc:'', url:it.url,
@@ -871,7 +907,7 @@ function renderTabs() {
   let html = '';
   if (searching) html += `<div class="tab ${activeSheet==='__search__'?'active':''}" data-sheet="__search__">&#x1F50D; Results</div>`;
 
-  const primary = ["Call Flow", "Secure Pause", "Salesforce Workflow", "HOME", "Tools", "Advanced", "Transfer Codes", "NLH", "VCI"];
+  const primary = ["Call Flow", "Secure Pause", "Salesforce Workflow", "HotKeys", "Source Index", "HOME", "Tools", "Advanced", "Transfer Codes", "Payroll Links", "NLH", "VCI"];
   primary.forEach(s => {
     const exists = DATA[s] || s === 'Secure Pause';
     if (!exists) return;
@@ -915,11 +951,91 @@ tabsEl.addEventListener('click', e => {
 function renderTransferPanel(terms) {
   const d = DATA['Transfer Codes'];
   if (!d) return '';
-  let html = `<div id="tc-panel"><h2>⚡ Transfer Codes — Quick Copy</h2><div class="tc-grid">`;
+
+  const onlineMostUsed = [
+    {label:'Tech / Advanced Help (NLH)', code:'US GBSG OL Next Level Help Phn', when:'QBO Online issue still in Core, but needs extra tools, investigation, or higher support.'},
+    {label:'QBO Advanced Support', code:'QB Advanced OL', when:'Customer has QuickBooks Online Advanced and needs Advanced product support.'},
+    {label:'QBO Saves / Cancel / Discount', code:'US GBSG OL Quickbooks Saves Phn', when:'Cancel, downgrade, save money, price increase, discount, competitor mention.'},
+    {label:'Payments Core / Merchant', code:'QB Payment OL', when:'Online payments, card/ACH processing, merchant deposits, batches, void/refund issues.'},
+    {label:'Merchant Risk / Holds', code:'QB Risk Ops Payments Only', when:'Funding holds, underwriting, risk review, frozen merchant funds, suspicious processing.'},
+    {label:'QB Self-Employed / Solopreneur', code:'QBSE Phn Support', when:'Customer is on QBSE/Solopreneur, not standard QBO Core.'},
+    {label:'Desktop → Online Migration', code:'US GBSG OL Desktop Migration PHN', when:'Migration/conversion from Desktop into QBO, missing data after conversion.'},
+    {label:'QBO Sales', code:'SBC Phn QBO Sales', when:'Customer wants to buy QBO, compare plans, or start a new subscription.'},
+    {label:'Advanced Sales', code:'SBC Phn Advanced Sales', when:'Customer wants to buy or upgrade to QBO Advanced.'},
+    {label:'Payments Sales', code:'SBC Phn Payments Sales', when:'Customer wants to add/sign up for QuickBooks Payments.'},
+  ];
+
+  const payrollSoon = [
+    {label:'Payroll Core', code:'QBO Phn Payroll Core', when:'Payroll Core support: paychecks, taxes, payroll settings, direct deposit basics.'},
+    {label:'Payroll Premium', code:'QBO Phn Prem Payroll', when:'Payroll Premium support.'},
+    {label:'Payroll Elite', code:'QB PYRL OL Elite', when:'Payroll Elite support.'},
+    {label:'Payroll Setup / Onboarding', code:'QBO Phn Payroll Full Service Setup', when:'New payroll setup/onboarding.'},
+    {label:'Payroll Sales', code:'SBC Phn Payroll Sales', when:'Customer wants to buy/add payroll.'},
+    {label:'Payroll Collections', code:'QB Phn Payroll Collections', when:'Payroll billing/collections/past due payroll service.'},
+  ];
+
+  function quickCard(x, badge='ONLINE') {
+    return `<button class="tc-btn" data-copy="${esc(x.code)}" style="align-items:flex-start;min-height:86px">
+      <span style="flex:1">
+        <span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+          <strong style="color:var(--text);font-size:12px">${hi(x.label, terms)}</strong>
+          <span style="font-size:9px;color:${badge==='PAYROLL SOON'?'var(--amber)':'var(--green)'};border:1px solid ${badge==='PAYROLL SOON'?'rgba(255,170,0,.35)':'rgba(0,255,157,.35)'};border-radius:999px;padding:1px 6px">${badge}</span>
+        </span>
+        <span style="display:block;font-size:11px;color:var(--muted);line-height:1.45">${hi(x.when, terms)}</span>
+        <span style="display:block;font:600 11px var(--mono);color:var(--accent);margin-top:6px">${hi(x.code, terms)}</span>
+      </span>
+      <span class="tc-icon">📋</span>
+    </button>`;
+  }
+
+  let html = `<div id="tc-panel">
+    <h2>⚡ Transfer Codes — Quick Copy</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-bottom:14px">
+      <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.25);border-radius:10px;padding:12px">
+        <div style="font:700 12px var(--mono);color:var(--accent);margin-bottom:6px">Where is “Tech”?</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.55">
+          For QBO Online/Core, “tech” usually means <strong style="color:var(--text)">Next Level Help</strong> when the issue needs extra tools or deeper review.
+          Do <strong style="color:var(--red)">not</strong> transfer back to the regular QBO Core queue.
+        </div>
+      </div>
+      <div style="background:rgba(255,107,43,.06);border:1px solid rgba(255,107,43,.25);border-radius:10px;padding:12px">
+        <div style="font:700 12px var(--mono);color:var(--accent2);margin-bottom:6px">Warm Transfer Rule</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.55">
+          Complete notes first, stay on the line, brief the next agent, and say <strong style="color:var(--text)">Account Specialist</strong> instead of internal team names like Saves.
+        </div>
+      </div>
+      <div style="background:rgba(0,255,157,.05);border:1px solid rgba(0,255,157,.22);border-radius:10px;padding:12px">
+        <div style="font:700 12px var(--mono);color:var(--green);margin-bottom:6px">Day 1 Filter</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.55">
+          You are mainly handling <strong style="color:var(--text)">Online customers</strong> right now. Payroll codes are grouped below for next week.
+        </div>
+      </div>
+    </div>
+
+    <div class="tc-section-title" style="color:var(--green)">MOST USED — ONLINE / DAY 1</div>
+    <div class="tc-grid" style="margin-bottom:12px">${onlineMostUsed.map(x => quickCard(x)).join('')}</div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px">
+      <div style="font:700 12px var(--mono);color:var(--amber);margin-bottom:8px">Quick Decision Tree</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;font-size:12px;color:var(--muted)">
+        <div><strong style="color:var(--text)">QBO how-to/navigation?</strong><br>Keep in Core.</div>
+        <div><strong style="color:var(--text)">QBO broken / extra tools?</strong><br>Use NLH.</div>
+        <div><strong style="color:var(--text)">Cancel / discount / downgrade?</strong><br>Use Saves.</div>
+        <div><strong style="color:var(--text)">Cards, ACH, deposits?</strong><br>Use Payments.</div>
+        <div><strong style="color:var(--text)">Funding hold / underwriting?</strong><br>Use Risk Ops.</div>
+        <div><strong style="color:var(--text)">Buying or upgrading?</strong><br>Use Sales lead queue.</div>
+      </div>
+    </div>
+
+    <div class="tc-section-title" style="color:var(--amber)">PAYROLL — NEXT WEEK TRAINING</div>
+    <div class="tc-grid" style="margin-bottom:14px">${payrollSoon.map(x => quickCard(x, 'PAYROLL SOON')).join('')}</div>
+
+    <div class="tc-section-title">FULL TRANSFER CODE LIST</div>
+    <div class="tc-grid">`;
   d.sections.forEach(sec => {
     html += `<div class="tc-section-title">${esc(sec.header)}</div>`;
     sec.codes.forEach((c,ci) => {
-      const codeNum = phoneDetect(c.code) || c.code;
       html += `
         <button class="tc-btn" data-copy="${esc(c.code)}">
           <span class="tc-desc">${hi(c.descriptor, terms)}</span>
@@ -1002,6 +1118,71 @@ function renderCallFlow() {
         </div>`).join('')}
       </div>
     </div>`;
+  return html;
+}
+
+
+function renderHotKeys() {
+  const d = DATA['HotKeys'];
+  const sections = d.sections || [];
+  const categories = ['All', ...new Set(sections.flatMap(s => (s.items||[]).map(i => i.category)).filter(Boolean))];
+  const products = ['All', ...new Set(sections.flatMap(s => (s.items||[]).map(i => i.product)).filter(Boolean))];
+  let html = `<div class="page-title" style="font-size:16px;margin-bottom:8px">⌨️ QuickBooks HotKeys</div>
+    <div style="background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.25);border-radius:10px;padding:11px 14px;margin-bottom:12px;font-size:12px;color:var(--muted);line-height:1.65">
+      <strong style="color:var(--amber)">Key sanity check:</strong> ${esc(d.source_note || '')}<br>
+      <span style="color:var(--dim)">Some create/navigation shortcuts come from the QBO shortcut overlay and may vary by browser. Official current Intuit guidance confirms date shortcuts, field helpers, save behavior, and Ctrl+Alt+U for payroll.</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <input id="hk-filter" placeholder="Search shortcuts, actions, or keys…" style="flex:1;min-width:240px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:9px 12px;font:13px var(--font);outline:none">
+      <select id="hk-cat" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px;font:13px var(--font)">${categories.map(c=>`<option>${esc(c)}</option>`).join('')}</select>
+      <select id="hk-prod" style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px;font:13px var(--font)">${products.map(p=>`<option>${esc(p)}</option>`).join('')}</select>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:14px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px"><div style="font-size:22px;color:var(--accent);font-weight:700">${sections.flatMap(s=>s.items||[]).length}</div><div style="font-size:11px;color:var(--muted)">Total shortcuts</div></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px"><div style="font-size:22px;color:var(--green);font-weight:700">${sections.flatMap(s=>s.items||[]).filter(i=>(i.product||'').includes('QBO')).length}</div><div style="font-size:11px;color:var(--muted)">QBO / Online</div></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px"><div style="font-size:22px;color:var(--amber);font-weight:700">${sections.flatMap(s=>s.items||[]).filter(i=>(i.confidence||'').includes('Official')).length}</div><div style="font-size:11px;color:var(--muted)">Official/high confidence</div></div>
+    </div>
+    <div id="hk-list">`;
+
+  sections.forEach(sec => {
+    html += `<div class="hk-section" data-section="${esc(sec.header)}" style="margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--accent2);font-family:var(--mono);border-bottom:1px solid var(--border);padding-bottom:7px;margin-bottom:9px">${esc(sec.header)}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:9px">`;
+    (sec.items || []).forEach(it => {
+      const confColor = (it.confidence||'').includes('Official') ? 'var(--green)' : 'var(--amber)';
+      html += `<div class="hk-card" data-search="${esc((it.action+' '+it.keys+' '+it.product+' '+it.category+' '+it.when+' '+it.tip).toLowerCase())}" data-cat="${esc(it.category||'')}" data-prod="${esc(it.product||'')}" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:start;justify-content:space-between;gap:8px">
+          <div style="font-weight:700;font-size:13px;color:var(--text)">${esc(it.action)}</div>
+          <button class="copy-btn" data-copy="${esc(it.keys)}">📋 ${esc(it.keys)}</button>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <span style="font:600 11px var(--mono);color:var(--accent);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);border-radius:999px;padding:2px 7px">${esc(it.product)}</span>
+          <span style="font:600 11px var(--mono);color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:2px 7px">${esc(it.category)}</span>
+          <span style="font:600 10px var(--mono);color:${confColor};background:rgba(255,170,0,.05);border:1px solid rgba(255,170,0,.18);border-radius:999px;padding:2px 7px">${esc(it.confidence)}</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5"><strong style="color:var(--text)">When:</strong> ${esc(it.when)}</div>
+        ${it.tip ? `<div style="font-size:12px;color:#a8f0c8;background:rgba(0,229,122,.06);border:1px solid rgba(0,229,122,.16);border-radius:7px;padding:7px 9px;line-height:1.45">💡 ${esc(it.tip)}</div>` : ''}
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</div>
+    <script>
+      (function(){
+        const f=document.getElementById('hk-filter'), c=document.getElementById('hk-cat'), p=document.getElementById('hk-prod');
+        function apply(){
+          const q=(f.value||'').toLowerCase().trim(); const cat=c.value; const prod=p.value;
+          document.querySelectorAll('.hk-card').forEach(card=>{
+            const okQ=!q || card.dataset.search.includes(q);
+            const okC=cat==='All' || card.dataset.cat===cat;
+            const okP=prod==='All' || card.dataset.prod===prod;
+            card.style.display=(okQ&&okC&&okP)?'flex':'none';
+          });
+        }
+        [f,c,p].forEach(el=>el&&el.addEventListener('input',apply));
+        [c,p].forEach(el=>el&&el.addEventListener('change',apply));
+      })();
+    <\/script>`;
   return html;
 }
 
@@ -1120,6 +1301,7 @@ function renderCatalog(sheet, terms) {
       html += `<div class="cat-item">
         ${it.url ? `<a href="${esc(it.url)}" target="_blank" rel="noopener">${hi(it.label,terms)}<span class="cat-item-ext">↗</span></a>` 
                  : `<span>${hi(it.label,terms)}</span>`}
+        ${it.description ? `<div style="font-size:11px;color:var(--muted);line-height:1.45;margin-top:4px">${hi(it.description,terms)}</div>` : ''}
         ${ph ? copyBtn(ph) : ''}
         ${scriptField(pos)}
       </div>`;
@@ -1593,6 +1775,8 @@ function render() {
         html = renderCallFlow();
       } else if (activeSheet === 'Salesforce Workflow') {
         html = renderSalesforceWorkflow();
+      } else if (activeSheet === 'HotKeys') {
+        html = renderHotKeys();
       } else if (activeSheet === 'Secure Pause') {
         html = renderSecurePause();
       } else if (activeSheet === 'Transfer Codes') {
